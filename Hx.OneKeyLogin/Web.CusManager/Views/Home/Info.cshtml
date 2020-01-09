@@ -1,0 +1,157 @@
+﻿@{
+    ViewBag.Title = "首页-统计图";
+}
+@section Head{
+    <link href="~/js/morris/morris.css" rel="stylesheet" />
+}
+
+<div class="col-lg-3 col-xs-6">
+    <!-- small box -->
+    <div class="small-box bg-yellow">
+        <div class="inner">
+            <h4>账户名称</h4>
+
+            <p>@ViewBag.Company</p>
+        </div>
+        <div class="icon">
+            <i class="ion ion-person-add"></i>
+        </div>
+        <a class="small-box-footer"><i class="fa fa-arrow-circle-center"></i></a>
+    </div>
+</div>
+<div class="col-lg-3 col-xs-6">
+    <!-- small box -->
+    <div class="small-box bg-aqua">
+        <div class="inner">
+            <h4>账户余额</h4>
+            <p><b>@ViewBag.Balance</b> 条</p>
+        </div>
+        <div class="icon">
+            <i class="ion ion-bag"></i>
+        </div>
+        <a class="small-box-footer"><i class="fa fa-arrow-circle-center"></i></a>
+    </div>
+</div>
+
+<div class="form-inline">
+    <div class="input-group">
+        <input class="form-control" type="text" id="startTime" placeholder="开始时间">
+    </div>---
+    <div class="input-group">
+        <input class="form-control" type="text" id="endTime" placeholder="结束时间">
+
+    </div>
+</div>
+
+<div id="chartmain" style="height:450px;"></div>
+@section footScript{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <script src="~/js/morris/morris.js"></script>
+    <script src="https://cdn.bootcss.com/echarts/4.4.0-rc.1/echarts.js"></script>
+    <script>
+        var myChart;
+        $(document).ready(function () {
+            myChart = echarts.init(document.getElementById('chartmain'));
+            myChart.setOption({
+                title: {
+                    text: '交易量'
+                },
+                tooltip: {},
+                //legend: {
+                //    data:['销量']
+                //},
+                xAxis: {
+                    data: []
+                },
+                yAxis: {},
+                series: [{
+                    name: '销量',
+                    type: 'line',
+                    data: []
+                }]
+            });
+            window.onresize = function () {
+                myChart.resize();
+            }
+            // 显示标题，图例和空的坐标轴
+            myChart.showLoading();
+            //初始化时间插件
+            $('#startTime').datetimepicker({
+                minView: "month",//选择日期后，不会再跳转去选择时分秒
+                format: "yyyy-mm-dd",//选择日期后，文本框显示的日期格式
+                language: 'zh-CN',//汉化
+                autoclose: true //选择日期后自动关闭
+            }).on('changeDate', function (ev) {
+                var startTime = $("#startTime").val();
+                var endTime = $("#endTime").val();
+                getchartsData(startTime, endTime);
+                $(this).trigger('blur');
+            });
+            $('#endTime').datetimepicker({
+                minView: "month",//选择日期后，不会再跳转去选择时分秒
+                format: "yyyy-mm-dd",//选择日期后，文本框显示的日期格式
+                language: 'zh-CN',//汉化
+                autoclose: true //选择日期后自动关闭
+            }).on('changeDate', function (ev) {
+                var startTime = $("#startTime").val();
+                var endTime = $("#endTime").val();
+                getchartsData(startTime, endTime);
+                $(this).trigger('blur');
+            });
+            var date = new Date();
+            var beforedate7 = new Date(date.getTime() - 144 * 60 * 60 * 1000);
+            $("#startTime").datetimepicker("setDate", beforedate7);
+            $("#endTime").datetimepicker("setDate", new Date());//获取当前时间
+            //数据加载完之前先显示一段简单的loading动画
+            var startTime = $("#startTime").val();
+            var endTime = $("#endTime").val();
+
+            getchartsData(startTime, endTime);
+        });
+
+        function getchartsData(startTime, endTime) {
+            var formatDate = [];    //时间数组（实际用来盛放X轴坐标值）
+            var totalCount = [];    //总条数数组（实际用来盛放Y坐标值）
+            $.ajax({
+                type: "post",
+                async: true,            //异步请求（同步请求将会锁住浏览器，用户其他操作必须等待请求完成才可以执行）
+                url: "/Home/GetCharts",    //请求发送到TestServlet处
+                data: {
+                    "startTime": startTime,
+                    "endTime": endTime
+                },
+                dataType: "json",        //返回数据形式为json
+                success: function (result) {
+                    if (result.length <= 0) {
+                        //$("#chartmain").attr("hidden", "true");//没有发送量，不显示统计图
+                    }
+                    //请求成功时执行该函数内容，result即为服务器返回的json对象
+                    if (result) {
+                        for (var i = 0; i < result.length; i++) {
+                            formatDate.push(result[i].formatDate);    //挨个取出类别并填入类别数组
+                        }
+                        for (var i = 0; i < result.length; i++) {
+                            totalCount.push(result[i].totalCount);    //挨个取出销量并填入销量数组
+                        }
+                        myChart.hideLoading();    //隐藏加载动画
+                        myChart.setOption({        //加载数据图表
+                            xAxis: {
+                                data: formatDate
+                            },
+                            series: [{
+                                // 根据名字对应到相应的系列
+                                name: '一键登录',
+                                data: totalCount
+                            }]
+                        });
+                    }
+                },
+                error: function (errorMsg) {
+                    //请求失败时执行该函数
+                    window.toastr.error("图表请求数据失败!");
+                    myChart.hideLoading();
+                }
+            });
+        }
+    </script>
+}

@@ -1,0 +1,20 @@
+﻿
+.contentZ {
+float:left;
+width:100%;
+}
+
+.contentLeft{
+    float:left;
+    width:20%;
+    text-align:right;
+}
+.contentmadder {
+    float:left;
+    width:60%;
+}
+.contentRight {
+    float:left;
+    width:20%;
+    padding:0px 20px;
+}

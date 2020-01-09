@@ -1,0 +1,285 @@
+﻿@using Domain.Common.Enums
+
+@{
+    ViewBag.Title = "客户";
+}
+@*表格显示*@
+<table id="dg" style="font-size: 20px; background:white;" data-options="fit:true, toolbar:'#tool'"></table>
+@*搜索框*@
+<div id="tool" name="tool" style="background-color:#f4f4f4;display:none;">
+    <div style="margin:0 5px">
+        <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true">@Html.Caption(PageResource.ButtonNew)</a>
+    </div>
+    <div style="margin-bottom: 2px;">
+        <form id="formMain" class="easyui-form">
+            账号: <input class="easyui-textbox" id="id" style="width: 230px;">
+            <a href="javascript:void(0)" class="easyui-linkbutton" style="width: 70px;" onclick="select()" data-options="iconCls:'icon-search'">@Html.Caption(PageResource.ButtonSearch)</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" style="width: 70px;" onclick="reset()" data-options="iconCls:'icon-reload'">@Html.Caption(PageResource.ButtonReset)</a>
+        </form>
+    </div>
+</div>
+@*新增/修改界面*@
+<div id="dlg" style="display:none;padding: 0;">
+    <iframe></iframe>
+</div>
+<div id="dlgDrecharge" style="display:none;padding: 0;"> <iframe></iframe></div>
+@section FootScript{
+    <script>
+        var __dgcreator;
+        $(function () {
+            __dgcreator = new dgcreator(
+                "#dg",
+                "/cus",
+                "",
+                "cus",
+                {
+                    singleSelect: true, //允许多选
+                    checkOnSelect: true, //点击复选框的时候才会被选中
+                    onLoadSuccess: function () {
+                        $('.btnlogin').linkbutton(); //登录
+                        $('.btnedit').linkbutton(); //编辑
+                        $('.btnrecharge').linkbutton(); //充值
+                        $('.btndelete').linkbutton(); //删除
+                        $('.btnenable').linkbutton(); //启用
+                        //////////登录//////////////////////////////
+                        $(".btnlogin").each(function (index, el) {
+                            $(this).bind("click",
+                                function (e) {
+                                    var cid = $(this).data("id");
+                                    var url = "";
+                                    $.ajax({
+                                        url: "/cus/remotelogin",
+                                        type: "post",
+                                        async: false,
+                                        dataType: "json",
+                                        data: { customerId: cid },
+                                        success: function (data) {
+                                            if (!data.status) {
+                                                $.messager.alert('失败', data.message, 'error');
+                                                e.preventDefault();
+                                                return false;
+                                            }
+                                            url = data.message;
+                                        },
+                                        error: function (data) {
+                                            $.messager.alert('错误', data + '！', 'error');
+                                        }
+                                    });
+                                    if (url == '') {
+                                        event.stopPropagation();
+                                        e.preventDefault();
+                                        return false;
+                                    }
+                                    $("#lrl").attr("href", url);
+                                    document.getElementById("lrl").click();
+                                });
+                        });
+                        //////////修改//////////////////////////////
+                        $(".btnedit").each(function (index, el) {
+                            $(this).bind("click",
+                                function () {
+                                    var cid = $(this).data("id");
+                                    openDlg("dlg", "编辑客户", "/cus/modi", g_const.largeDlgSize, { opt: "update",id: cid });
+                                });
+                        });
+                        //////////充值/////////////////////////////////////////
+                        $(".btnrecharge").each(function (index, el) {
+                            $(this).bind("click",
+                                function () {
+                                    var cid = $(this).data("id");
+                                    openDlg("dlgDrecharge", "客户充值", "/cus/re", g_const.middleDlgSize, { id: cid });
+                                });
+                        });
+                        //////////删除/////////////////////////////////////////
+                        $(".btndelete").each(function (index, el) {
+                            $(this).bind("click",
+                                function () {
+                                    var cid = $(this).data("id");
+                                    $.messager.confirm('确认',
+                                        '您确定要禁用该客户吗？',
+                                        function (r) {
+                                            if (r) {
+                                                //删除
+                                                var rlt = req({ id: cid }, '/cus/delete');
+                                                if (rlt) {
+                                                    $("#dg").datagrid("reload");
+                                                } else {
+                                                    $.messager.alert('提示消息', '禁用失败', 'info');
+                                                }
+                                            };
+                                        });
+                                });
+                        });
+                        //////////启用/////////////////////////////////////////
+                        $(".btnenable").each(function (index, el) {
+                            $(this).bind("click",
+                                function () {
+                                    var cid = $(this).data("id");
+                                    $.messager.confirm('确认',
+                                        '您确定要启用该客户吗？',
+                                        function (r) {
+                                            if (r) {
+                                                //启用
+                                                var rlt = req({ id: cid }, '/cus/pass');
+                                                if (rlt) {
+                                                    $("#dg").datagrid("reload");
+                                                } else {
+                                                    $.messager.alert('提示消息', '启用失败', 'info');
+                                                }
+                                            };
+                                        });
+                                });
+                        });
+                    },
+                    rowStyler: function (index, row) {
+                        //每行的高度
+                        return 'height:23px;';
+                    }
+                },
+                colformatter,
+                {
+                    width: "30%",
+                    formatter: function (value, row, index) {
+                        var html = "";
+                        // html += '<a href="javascript:void(0)" class="btnlogin"  data-id="' + row.id + '"  data-deleteid="edit' + row.realName + '"data-options="plain:true"style="width:40px;height:20px;"><span id="color">登录</span></a>';
+                        html += '<a href="javascript:void(0)" class="btnedit"  data-id="' +row.id +'" data-options="plain:true"style="width:40px;height:20px;"><span id="color">编辑</span></a>';
+                        //html += '<a href="javascript:void(0)" class="btnrecharge"  data-id="' + row.id + '" data-options="plain:true"style="width:40px;height:20px;"><span id="color">充值</span></a>';
+                        if (row.status === "禁用") {
+                            html += '<a href="javascript:void(0)" class="btnenable"  data-id="' +row.id +'" data-options="plain:true"style="width:40px;height:20px;"><span id="color">启用</span></a>';
+                        }
+                        if (row.status=="正常") {
+                            html += '<a href="javascript:void(0)" class="btndelete"  data-id="' + row.id + '" data-options="plain:true"style="width:40px;height:20px;"><span id="color">禁用</span></a>';
+                        }
+                        return html;
+                    }
+                }
+            );
+
+            __dgcreator.beforeCreate = function (cols) {
+                /* cols.splice(3, 1);*/ //直接客户没有上级
+            };
+            __dgcreator.create();
+        });
+
+        function colformatter(col) {
+            if (col == 13) {
+                return colIdxformat13;
+            }
+            return null;
+        }
+
+        function colIdxformat13(value, row, index) {
+            if (value) {
+                return "<img src='/app/Img?val=" + value + "' style='width:40px;height:40px'/>";
+            } else {
+                return null;
+            }
+        }
+        
+        //function colformatter(colidx) {//多选框
+        //    if (colidx == -1) {
+        //        return "check";
+        //    }
+        //    return null;
+        //}
+
+
+        //菜单栏查询数据
+        function select() {
+            var js = {
+                "name": $("#id").val()
+            };
+            __dgcreator.setdata(js);
+        }
+
+        //菜单栏重置按钮
+        function reset() {
+            $("#formMain").form("reset");
+            __dgcreator.create();
+        }
+
+        function req(data, url) {
+            var json = null;
+            $.ajax({
+                async: false,
+                type: "POST",
+                url: url,
+                data: data,
+                success: function (data) {
+                    json = data;
+                },
+                //XMLHttpRequest 对象、错误信息、（可选）捕获的异常对象
+                error: function (data, textStatus, errorThrown) {
+                    _this.notice("错误提示", "错误信息：" + data.responseText, "info");
+                },
+                dataType: "json"
+            });
+            return json;
+        }
+
+        //新增信息
+        $("#btnAdd").click(function () {
+            openDlg("dlg", "新增", "/cus/Modi", g_const.largeDlgSize, { opt: "add", id: "0" });
+        });
+
+        //批量删除
+        function dlt() {
+            var row = $("#dg").datagrid("getSelected");
+            if (row.id.length > 0) {
+                $.messager.confirm('确认',
+                    '您确认想要删除选中的记录吗？',
+                    function (r) {
+                        if (r) {
+                            for (var i = 0; i < id.length; i++) {
+                                var delid = $("#dg").datagrid('getSelected')[i].Id;
+                                __dgcreator.del(delid, "/cus/delete");
+                                __dgcreator.show("提示消息", "已删除成功", 2000);
+                            }
+                        }
+                        __dgcreator.create();
+                    });
+            } else {
+                __dgcreator.show("提示消息", "未选择操作,请选择后 操作", 2000);
+            }
+        }
+
+
+        function remotelogin(el) {
+            var cid = $(el).data("id");
+            var url = "";
+            $.ajax({
+                url: "/cus/remotelogin",
+                type: "post",
+                async: false,
+                dataType: "json",
+                data: { customerId: cid },
+                success: function (data) {
+                    if (!data.status) {
+                        $.messager.alert('失败', data.message, 'error');
+                        e.preventDefault();
+                        return false;
+                    }
+                    url = data.message;
+                },
+                error: function (data) {
+                    $.messager.alert('错误', data + '！', 'error');
+                }
+            });
+            if (url == '') {
+                event.stopPropagation();
+                e.preventDefault();
+                return false;
+            }
+            $("#lrl").attr("href", url);
+            document.getElementById("lrl").click();
+        }
+    </script>
+}
+
+
+
+
+
+
+
+

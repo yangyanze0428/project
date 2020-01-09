@@ -1,0 +1,122 @@
+﻿@using Domain.Common.Enums
+@model Domain.Common.Dtos.Order.OrderDto
+@{
+    Layout = "_DlgLayout";
+    ViewBag.Title = "订单";
+}
+
+<form id="formMain" method="post" class="easyui-form cont" data-options="novalidate:true">
+    <input id="opt" name="opt" type="hidden" value="@ViewBag.opt" />
+    <input id="CreateDate" name="CreateDate" type="hidden" value="@Model.CreateDate" />
+    <table id="tst">
+        <tbody>
+            <tr>
+                <td>订单ID：</td>
+                @if (ViewBag.opt == "add")
+                {
+                    <td>
+                        <input class="easyui-textbox easyui-validatebox" id="Id" name="Id" value="@Model.Id" style="width: 180px; height: 32px" >
+                    </td>
+                }
+                else
+                {
+                    <td> <input type="hidden" id="Id" name="Id" value='@Model.Id' />@Model.Id</td>
+                    <td></td>
+                }
+            </tr>
+        <tr>
+            <td>客户账号：</td>
+            <td>
+                <input class="easyui-textbox" id="UserId" name="UserId" value="@Model.UserId" style="width: 180px; height: 32px" data-options="required:true" >
+            </td>
+            <td style="color:red">*</td>
+        </tr>
+            <tr>
+                <td>订单名称：</td>
+                <td>
+                    <input class="easyui-textbox" id="Name" name="Name" value="@Model.Name" style="width: 180px; height: 32px">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>AppKey：</td>
+                <td>
+                    <input class="easyui-textbox" id="AppKey" name="AppKey" value="@Model.AppKey" style="width: 180px; height: 32px" >
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>产品分类：</td>
+                <td>
+                    @*<input class="easyui-textbox" id="ProductType" name="ProductType" value="@Model.ProductType" style="width: 180px; height: 32px">*@
+                    @Html.DropDownList("ProductType", Html.GetEnumDropDownList(typeof(ProductType)), "全部", new { @class = "easyui-combobox", editable = false, style = "width:180px", panelHeight = "auto" })
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>金额：</td>
+                <td>
+                    <input class="easyui-textbox" id="Money" name="Money" value="@Model.Money" style="width: 180px; height: 32px">
+                </td>
+            </tr>
+            <tr>
+                <td>订单类型：</td>
+                <td>
+                    @Html.DropDownList("OrderType", Html.GetEnumDropDownList(typeof(OrderType)), "全部", new { @class = "easyui-combobox", editable = false, style = "width:180px", panelHeight = "auto" })
+                </td>
+            </tr>
+            <tr>
+                <td>状态：</td>
+                <td>
+                    <input class="easyui-textbox" id="Status" name="Status" value="@Model.Status" style="width: 180px; height: 32px">
+                </td>
+            </tr>
+
+           
+            <tr>
+                <td>备注：</td>
+                <td>
+                    <input class="easyui-textbox" id="Remark" name="Remark" value="@Model.Remark" style="width: 400px; height: 45px">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+@section FootScript{
+    <script src="~/js/jquery.form/jquery.form.js"></script>
+    <script>
+        $(function () {
+            setHandler(function () {
+                var rlt = false;
+                var options = {
+                    beforeSubmit: function (formData, jqForm, options) {
+                        return $("#formMain").form('enableValidation').form("validate");
+                    },
+                    success: function (response, statusText, xhr, $form) {
+                        if (response.status) {
+                            rlt = true;
+                        } else {
+                            $.messager.alert("提示", response.message, null, function () {
+
+                            });
+                            rlt = false;
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $.messager.alert('错误', error);
+                        rlt = false;
+                    },
+                    dataType: "json",
+                    async: false
+                };
+                $('#formMain').ajaxSubmit(options);
+                return rlt;
+            },
+                function () {
+                    parent.$("#dg").datagrid("reload");
+                }
+            );
+        });
+
+    </script>
+}

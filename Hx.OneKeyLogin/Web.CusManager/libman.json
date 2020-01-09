@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "jquery.form@4.2.2",
+      "destination": "wwwroot/jquery.form/"
+    },
+    {
+      "library": "bootstrap-table@1.15.4",
+      "destination": "wwwroot/bootstrap-table/"
+    },
+    {
+      "library": "bootstrap-fileinput@5.0.6",
+      "destination": "wwwroot/bootstrap-fileinput/",
+      "files": [
+        "js/fileinput.min.js",
+        "js/fileinput.js",
+        "css/fileinput-rtl.css",
+        "css/fileinput-rtl.min.css",
+        "css/fileinput.css",
+        "css/fileinput.min.css",
+        "js/plugins/sortable.min.js",
+        "js/plugins/sortable.js",
+        "js/plugins/purify.min.js",
+        "js/plugins/purify.js",
+        "js/plugins/piexif.min.js",
+        "js/plugins/piexif.js"
+      ]
+    },
+    {
+      "library": "bootstrap-treeview@1.2.0",
+      "destination": "wwwroot/bootstrap-treeview/",
+      "files": [
+        "bootstrap-treeview.min.js",
+        "bootstrap-treeview.min.css"
+      ]
+    }
+  ]
+}

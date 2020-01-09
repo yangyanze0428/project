@@ -1,0 +1,254 @@
+﻿@using Domain.Common.Enums
+@model Domain.Common.Dtos.App.AppDto
+
+@{
+    Layout = "_DlgLayout";
+    ViewBag.Title = "增加应用";
+}
+<form id="formMain" method="post" class="easyui-form cont" data-options="novalidate:true" enctype="multipart/form-data">
+    <input id="opt" name="opt" type="hidden" value="@ViewBag.opt" />
+    <input id="Creator" name="Creator" type="hidden" value="@Model.Creator" />
+    <input id="Operator" name="Operator" type="hidden" value="@Model.Operator" />
+    <input id="CreateDate" name="CreateDate" type="hidden" value="@Model.CreateDate" />
+    <input id="OperateDate" name="OperateDate" type="hidden" value="@Model.OperateDate" />
+    <input id="Status" name="Status" type="hidden" value="@Model.Status" />
+    <input id="Icon" name="Icon" type="hidden" value="@Model.Icon" />
+    <table id="tst">
+        <tbody>
+            <tr>
+                <td>AppKey：</td>
+                @if (ViewBag.opt == "add")
+                {
+                    <td>
+                        <input class="easyui-textbox easyui-validatebox" id="Id" name="Id" value="@Model.Id" style="width: 180px; height: 32px" data-options="required:true, validType:{remote:['/key','id']},missingMessage:'Appkey不能为空',invalidMessage:'Appkey已存在'">
+                    </td>
+                    <td class="tbcol3"><span>*由通道开具</span></td>
+                }
+                else
+                {
+                    <td>
+                        <input class="easyui-textbox" id="Id" type="hidden" name="Id" value="@Model.Id">@Model.Id
+                    </td>
+                }
+            </tr>
+            <tr>
+                <td>客户密钥：</td>
+                <td>
+                    <input class="easyui-textbox" id="MessageSecret" name="MessageSecret" value="@Model.MessageSecret" style="width: 180px; height: 32px">
+                </td>
+                <td class="tbcol3"><span>* 由平台提供，接口加密使用</span></td>
+            </tr>
+
+            <tr>
+                <td>通道密钥：</td>
+                <td>
+                    <input class="easyui-textbox easyui-validatebox" id="MsgSecret" name="MsgSecret" value="@Model.MsgSecret" style="width: 180px; height: 32px" data-options="required:true,missingMessage:'密钥不能为空'">
+                </td>
+                <td class="tbcol3"><span>* 由通道开具</span></td>
+            </tr>
+            <tr>
+                <td>AppSecret：</td>
+                <td>
+                    <input class="easyui-textbox easyui-validatebox" id="AppSecret" name="AppSecret" value="@Model.AppSecret" style="width: 180px; height: 32px" data-options="required:true,missingMessage:'AppSecret不能为空'">
+                </td>
+                <td class="tbcol3"><span>* 由通道开具</span></td>
+            </tr>
+            <tr>
+                <td>客户账号：</td>
+                <td>
+                    <input class="easyui-combobox" id="userId" name="userId" value="@Model.UserId" style="width: 180px;" data-options="loader: accloader1,mode: 'remote',delay:500,valueField: 'id',textField: 'name',panelHeight:'auto',required:true, validType:'userId',prompt:'请输入账号',missingMessage:'账号不能为空',invalidMessage:'账号不存在'">
+                </td>
+                <td style="color:red"><span>* 由客户提供</span></td>
+            </tr>
+            <tr>
+                <td>安卓包名：</td>
+                <td>
+                    <input class="easyui-textbox" id="AndroidId" name="AndroidId" value="@Model.AndroidId" style="width: 180px; height: 32px">
+                </td>
+                <td style="color:red"><span>* 由客户提供</span></td>
+            </tr>
+            <tr>
+                <td>应用签名：</td>
+                <td>
+                    <input class="easyui-textbox easyui-validatebox" id="Signature" name="Signature" value="@Model.Signature" style="width: 180px; height: 32px" data-options="required:true,missingMessage:'应用签名不能为空'">
+                </td>
+                <td style="color:red"><span>* 由客户提供</span></td>
+            </tr>
+            <tr>
+                <td>应用名称：</td>
+                <td>
+                    <input class="easyui-textbox easyui-validatebox" id="AppName" name="AppName" value="@Model.AppName" style="width: 180px; height: 32px" data-options="required:true,missingMessage:'应用名称不能为空'">
+                </td>
+                <td style="color:red"><span>* 由客户提供</span></td>
+            </tr>
+            <tr>
+                <td>BundleId：</td>
+                <td>
+                    <input class="easyui-textbox" id="BundleId" name="BundleId" value="@Model.BundleId" style="width: 180px; height: 32px">
+                </td>
+                <td style="color:red"><span>* 由客户提供</span></td>
+            </tr>
+            <tr>
+                <td>应用图标：</td>
+                @if (ViewBag.opt == "add")
+                {
+                    <td>
+                        <input class="easyui-filebox" id="Icon" name="Icon" value="@Model.Icon" style="width: 180px; height: 32px" data-options="required:true,prompt:'请选择图片！'" buttontext="选择图片">
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        <input class="easyui-filebox easyui-validatebox" id="Icon" name="Icon" value="" style="vertical-align:middle;width: 180px; height: 32px" data-options="prompt:'请选择图片！'" buttontext="选择图片" accept="image/*">
+                        <img src="/app/Img?val=@Model.Icon" style="width: 40px; height: 40px; vertical-align: middle">
+                    </td>
+                }
+                <td style="color:red"><span>* 由客户提供</span></td>
+            </tr>
+            <tr>
+                <td>应用类型：</td>
+                <td>
+                    @Html.DropDownList("AppType", Html.GetEnumDropDownList(typeof(AppType)), "全部", new { @class = "easyui-combobox", editable = false, style = "width:180px" })
+                </td>
+                <td style="color:red"><span>*</span></td>
+            </tr>
+            <tr>
+                <td>业务员：</td>
+                <td>
+                    <input class="easyui-combobox" id="SalesMan" name="SalesMan" value="@Model.SalesMan" style="width: 180px;" data-options="required:true,loader: accloader,mode: 'remote',delay:500,valueField: 'id',textField: 'name',panelHeight:'auto',validType:{remote:['/staff/exist','id']},prompt:'请输入业务员',missingMessage:'业务员不能为空',invalidMessage:'业务员不存在'">
+                </td>
+                <td style="color:red"><span>*</span></td>
+            </tr>
+            <tr>
+                <td>备注：</td>
+                <td>
+                    <input class="easyui-textbox" id="Remark" name="Remark" value="@Model.Remark" style="width: 400px; height: 45px">
+                </td>
+                <td style="color:red"></td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+@section FootScript{
+    <script src="~/js/jquery.form/jquery.form.js"></script>
+    <script>
+        $(function () {
+            $('#formMain input').keyup(trimkeyup);
+
+            setHandler(function () {
+                var rlt = false;
+                var options = {
+                    beforeSubmit: function (formData, jqForm, options) {
+                        return $("#formMain").form('enableValidation').form("validate");
+                    },
+                    success: function (response, statusText, xhr, $form) {
+                        if (response.status) {
+                            rlt = true;
+                        } else {
+                            $.messager.alert("提示", response.message, null, function () {
+
+                            });
+                            rlt = false;
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $.messager.alert('错误', error);
+                        rlt = false;
+                    },
+                    dataType: "json",
+                    async: false
+                };
+                $('#formMain').ajaxSubmit(options);
+                return rlt;
+            },
+                function () {
+                    parent.$("#dg").datagrid("reload");
+                }
+            );
+            $.extend($.fn.validatebox.defaults.rules, {
+                //验证用户是否存在
+                userId: {
+                    validator: function (value, params) {
+                        var id = $("#userId").combobox('getValue');
+                        var r = false;
+                        $.ajax({
+                            url: '/cust/exist',
+                            data: { id: id},
+                            async: false,
+                            dataType: "json",
+                            success: function (data) {
+                                if (data == true) {
+                                    r = true;
+                                }
+                            },
+                            error: function () {
+                                $.messager.alert("提示", "系统内部错误", null, function () {
+                                    r = false;
+                                });
+                            }
+                        });
+                        return r;
+                    }
+                },
+                message: '您输入的用户不存在'
+            });
+        });
+
+        function trimkeyup(e) {
+            lucene_objInput = $(this);
+            if (e.keyCode != 38 && e.keyCode != 40 && e.keyCode != 13) {
+                var im = $.trim(lucene_objInput.val());
+                lucene_objInput.val(im);
+            }
+        }
+
+        var accloader = function (param, success, error) {
+            var q = param.q || '';
+            if (q.length < 1) { return false }
+            $.ajax({
+                url: '/staff/query',
+                data: {
+                    q: q
+                },
+                type: "post",
+                success: function (data) {
+                    var items = $.map(data, function (value, key) {
+                        return {
+                            id: value.key,
+                            name: value.value
+                        };
+                    });
+                    success(items);
+                },
+                error: function () {
+                    error.apply(this, arguments);
+                }
+            });
+            return false;
+        };
+        var accloader1 = function (param, success, error) {
+            var q = param.q || '';
+            if (q.length < 1) { return false }
+            $.ajax({
+                url: '/cus/query',
+                data: {
+                    q: q
+                },
+                type: "post",
+                success: function (data) {
+                    var items = $.map(data, function (value, key) {
+                        return {
+                            id: value.key,
+                            name: value.value
+                        };
+                    });
+                    success(items);
+                },
+                error: function () {
+                    error.apply(this, arguments);
+                }
+            });
+            return false;
+        };
+    </script>
+}

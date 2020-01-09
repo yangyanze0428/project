@@ -1,0 +1,86 @@
+﻿@model Domain.Common.Dtos.MemberShip.OrgDto
+@{
+    Layout = "_DlgLayout";
+    ViewBag.Title = "部门";
+}
+
+    <form id="formMain" method="post" class="easyui-form cont" data-options="novalidate:true">
+        <input id="id" name="id" type="hidden" value="@Model.Id" />
+        <input id="IsEnable" name="IsEnable" type="hidden" value="@Model.IsEnable" />
+        <input id="OrderBy" name="OrderBy" type="hidden" value="@Model.OrderBy" />
+        <table>
+            <tbody>
+                <tr>
+                    <td>名称：</td>
+                    <td>
+                        <input class="easyui-textbox easyui-validatebox" id="Name" name="Name" value="@Model.Name" style="width: 300px;"
+                               data-options="required:true,prompt:'部门名称',missingMessage:'部门不能为空',invalidMessage:'部门已存在'">
+                    </td>    @*validType:{remote:['/orgv','name']},*@
+                    <td style="color:red">*</td>
+                </tr>
+                <tr>
+                    <td>归属：</td>
+                    <td>
+                        <input type="hidden" id="ParentId" name="ParentId" value="@Model.ParentId" />
+                        <span id="sp_Part"></span>
+                    </td>
+                    <td style="color:red">*</td>
+                </tr>
+                <tr>
+                    <td>备注：</td>
+                    <td>
+                        <input type="text" class="easyui-textbox" id="Remark" name="Remark" value="@Model.Remark" />
+                    </td>
+                    <td style="color:red">*</td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+@section FootScript{
+    <script src="~/js/jquery.form/jquery.form.js"></script>
+    <script>
+        $(function () {
+            var row = parent.$('#dg').datagrid('getSelected');
+            if ($("#id").val() == "0") {//增加，归属显示当前名
+                $("#ParentId").val(row.id);
+                $("#sp_Part").html(row.name);
+            } else {//修改，归属显示上级名
+                var text = parent.req({ id: row.parentId }, "/org/Get");
+                if (text == undefined) {
+                    $("#sp_Part").html("无");
+                    return;
+                }
+                $("#sp_Part").html(text.name);
+            }
+
+            setHandler(function () {
+                var rlt = false;
+                var options = {
+                    beforeSubmit: function (formData, jqForm, options) {
+                        return $("#formMain").form('enableValidation').form("validate");
+                    },
+                    success: function (response, statusText, xhr, $form) {
+                        if (response.status) {
+                            rlt = true;
+                        } else {
+                            $.messager.alert("提示", response.message);
+                            rlt = false;
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $.messager.alert('错误', error);
+                        rlt = false;
+                    },
+                    dataType: "json",
+                    async: false
+                };
+                $('#formMain').ajaxSubmit(options);
+                return rlt;
+            },
+                function () {
+                    parent.$("#dg").treegrid("reload");
+                }
+            );
+        });
+    </script>
+}

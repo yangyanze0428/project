@@ -1,0 +1,232 @@
+﻿@{
+    ViewBag.Title = "实名认证";
+}
+@*表格显示*@
+<table id="dg" style="font-size: 20px; background:white;" data-options="fit:true, toolbar:'#tool'"></table>
+@*搜索框*@
+<div id="tool" name="tool" style="background-color:#f4f4f4;display:none;">
+    <div style="margin:0 5px">
+        <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true">@Html.Caption(PageResource.ButtonNew)</a>
+    </div>
+    <form id="formMain" class="easyui-form">
+        <div style="margin-bottom: 3px">
+            客户账号:<input class="easyui-textbox" id="id" style="width: 230px;">
+            公司名称:<input class="easyui-textbox" id="name" style="width: 230px;">
+            <a href="#" class="easyui-linkbutton" style="width: 70px;" onclick="select()" data-options="iconCls:'icon-search'">@Html.Caption(PageResource.ButtonSearch)</a>
+            <a href="#" class="easyui-linkbutton" style="width: 70px;" onclick="reset()" data-options="iconCls:'icon-reload'">@Html.Caption(PageResource.ButtonReset)</a>
+            <a href="#" class="easyui-linkbutton" style="width: 90px;" onclick="audit(2)" data-options="iconCls:'icon-ok'">审核通过</a>
+            <a href="#" class="easyui-linkbutton" style="width: 90px;" onclick="audit(4)" data-options="iconCls:'icon-cancel'">审核拒绝</a>
+        </div>
+    </form>
+</div>
+@*新增/修改界面*@
+<div id="dlg" style="display:none;padding: 0;">
+    <iframe></iframe>
+</div>
+<div id='preview' style="display:none;padding: 0;">
+    <img id="simg"/>
+</div>
+@section FootScript{
+    <script>
+        var __dgcreator;
+        $(function () {
+            __dgcreator = new dgcreator("#dg", "/authenty", "", "auth",
+                {
+                    singleSelect: false,
+                    selectOnCheck: true,
+                    checkOnSelect: true,
+                    onLoadSuccess: function () {
+                        $('.btnedit').linkbutton();//编辑
+                        $('.btndelete').linkbutton(); //删除
+                        $(".btnedit").each(function (index, el) {
+                            $(this).bind("click", function () {
+                                var cid = $(this).data("id");
+                                openDlg("dlg", "编辑企业信息", "/authenty/modify", g_const.maxDlgSize, { opt: "update", id: cid });
+                            });
+                        });
+                        $(".btndelete").each(function (index, el) {
+                            $(this).bind("click", function () {
+                                var cid = $(this).data("id");
+                                $.messager.confirm('确认', '您确定要删除吗？', function (r) {
+                                    if (r) {
+                                        var rlt = req({ id: cid }, "/authenty/delete");
+                                        if (rlt) {
+                                            $("#dg").datagrid("reload", "/authenty/GetList");
+                                        }
+                                    };
+                                });
+                            });
+                        });
+                    },
+                    onCheckAll: function (rows) {
+                        $.each(rows, function (i, v) {
+                            if (v.auditResult != 1) {
+                                $('#dg').datagrid('uncheckRow', i);
+                            }
+                        });
+                    },
+                    rowStyler: function (index, row) {
+                        //每行的高度
+                        return 'height:24px;';
+                    }
+                },
+                colformatter,
+                {
+                    formatter: function (value, row, index) {
+                        var html = "";
+                        html += '<a href="javascript:void(0)" class="btnedit"  data-id="' + row.id + '" data-options="plain:true"style="width:40px;height:20px;"><span id="color">编辑</span></a>';
+                        html += '<a href="javascript:void(0)" class="btndelete"  data-id="' + row.id + '" data-options="plain:true"style="width:40px;height:20px;"><span id="color">删除</span></a>';
+                        return html;
+                    }
+                }
+            );
+
+            __dgcreator.create();
+        });
+        function colformatter(col) {
+            if (col == -1) {
+                return "check";
+            }
+            if (col == 2) {
+                return imgFormatter;
+            }
+            if (col == 3) {
+                return colIdxformat3;
+            }
+            return null;
+        }
+        function colIdxformat2(value, row, index) {
+            if (value) {
+                return "<img src='/app/Img?val=" + value + "' style='width:40px;height:40px'/>";
+            } else {
+                return null;
+            }
+        }
+        function colIdxformat3(value, row, index) {
+            if (row.auditResult == 1) {
+                return "<span style='color:blue'>" + value + "</span>";
+            }
+            if (row.auditResult == 2) {
+                return "<span style='color:green'>" + value + "</span>";
+            }
+            if (row.auditResult == 4) {
+                return "<span style='color:red'>" + value + "</span>";
+            }
+        }
+
+        //图片添加路径
+        function imgFormatter(value, row, index) {
+            if ('' != value && null != value) {
+                var strs = new Array(); //定义一数组
+                if (value.substr(value.length - 1, 1) == ",") {
+                    value = value.substr(0, value.length - 1)
+                }
+                strs = value.split(","); //字符分割
+                var rvalue = "";
+                for (i = 0; i < strs.length; i++) {
+                    rvalue += "<img onclick=download(this) style='width:40px; height:40px;' src='/app/Img?val=" + value + "' title='点击查看图片'/>";
+                }
+                return rvalue;
+            }
+        }
+        function download(img) {
+            var simg = img.src;
+            $('#preview').dialog({
+                title: '预览',
+                width: 600,
+                height: 600,
+                resizable: true,
+                closed: false,
+                cache: false,
+                modal: true
+            });
+            $("#simg").attr("src", simg);
+            $("#simg").attr("width", 560);
+            $("#simg").attr("height", 550);
+        }
+
+        //菜单栏查询数据
+        function select() {
+            var js = {
+                "id": $("#id").val(),
+                "name": $("#name").val(),
+            };
+            __dgcreator.setdata(js);
+        }
+
+        //菜单栏重置按钮
+        function reset() {
+            $("#formMain").form("reset");
+            __dgcreator.setdata({});
+        }
+        function req(data, url) {
+            var json = null;
+            $.ajax({
+                async: false,
+                type: "POST",
+                url: url,
+                data: data,
+                success: function (data) {
+                    json = data;
+                },
+                //XMLHttpRequest 对象、错误信息、（可选）捕获的异常对象
+                error: function (data, textStatus, errorThrown) {
+                    _this.notice("错误提示", "错误信息：" + data.responseText, "info");
+                },
+                dataType: "json"
+            });
+            return json;
+        }
+        //新增信息
+        $("#btnAdd").click(function () {
+            openDlg("dlg", "新增", "/authenty/modify", g_const.middleDlgSize, { opt: "add" });
+        });
+
+        //审核
+        function audit(result) {
+            var srs = $("#dg").datagrid("getSelections");
+            if (srs.length == 0) return;
+            var msgs = [];
+            for (var i = 0; i < srs.length; i++) {
+                msgs.push(srs[i].id);
+                //msgs.push(srs[i].auditResult);
+            }
+            $.ajax({
+                type: "POST",
+                url: "/authenty/audit",
+                data: {
+                    msgs: msgs,
+                    result: result
+                },
+                success: function (data) {
+                    //var rows = $("#dg").datagrid("getRows");
+                    //for (var i = rows.length - 1; i >= 0; i--) {
+                    //    if ($.inArray(rows[i].id, data) >= 0) {
+                    //        $("#dg").datagrid("deleteRow", $("#dg").datagrid("getRowIndex", rows[i]));
+                    //    }
+                    //}
+                    //rows = $("#dg").datagrid("getRows");
+                    //if (rows != null && rows.length == 0) {
+                    //    read('after audit');
+                    //}
+                    if (data.length > 0) {
+                        read();
+                    }
+                },
+                error: function (data, textStatus, error) {
+                    $.messager.alert('错误', error);
+                }
+            });
+        }
+
+        function read() {
+            __dgcreator.setdata({ id: $("#id").val(), name: $("#name").val() });
+        }
+    </script>
+}
+
+
+
+
+
+

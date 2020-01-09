@@ -1,0 +1,144 @@
+﻿@{
+    ViewBag.Title = "员工管理";
+}
+@*页面*@
+@*表格显示*@
+<table id="dg" style="font-size: 20px; background:white;" data-options="fit:true, toolbar:'#tool'"></table>
+@*搜索框*@
+<div id="tool" name="tool" style="background-color: #f4f4f4; display: none;">
+    <div style="margin: 0 5px">
+        <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true">@Html.Caption(PageResource.ButtonNew)</a>
+    </div>
+    <form id="formMain" method="post" class="easyui-form">
+        <div style="margin-bottom: 3px">
+            账号: <input class="easyui-textbox" id="username" name="username" style="width: 230px">
+            姓名: <input class="easyui-textbox" id="staffname" name="staffname" style="width: 230px">
+            <a href="javascript:void(0)" class="easyui-linkbutton" style="width: 70px;" onclick="select()" data-options="iconCls:'icon-search'">@Html.Caption(PageResource.ButtonSearch)</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" style="width: 70px;" onclick="reset()" data-options="iconCls:'icon-reload'">@Html.Caption(PageResource.ButtonReset)</a>
+        </div>
+    </form>
+</div>
+@*新增/修改界面*@
+<div id="dlgstaff" style="display:none;">
+    <iframe></iframe>
+</div>
+@section FootScript{
+    <script>
+        var __dgcreator;
+        $(function () {
+            __dgcreator = new dgcreator(
+                "#dg",
+                "/Staff",
+                "",
+                "staff",
+                {
+                    onLoadSuccess: function () {
+                        $('.btnedit').linkbutton(); //修改
+                        $('.btndelete').linkbutton(); //禁用
+                        $('.btnpass').linkbutton(); //启用
+                        //////////修改 获取id的值/////////////////////////////////////////
+                        $(".btnedit").each(function (index, el) {
+                            $(this).bind("click", function () {
+                                var cid = $(this).data("id");
+                                openDlg("dlgstaff", "修改员工", "/staff/Modify", g_const.largeDlgSize, { opt: "update", id: cid });
+                            });
+                        });
+                        //////////禁用/////////////////////////////////////////
+                        $(".btndelete").each(function (index, el) {
+                            $(this).bind("click", function () {
+                                var cid = $(this).data("id");
+                                var cname = $(this).data("name");
+                                $.messager.confirm('确认', '您确定要禁用员工吗？', function (r) {
+                                    if (r) {
+                                        //删除
+                                        var rlt = req({ id: cid }, '/staff/delete');
+                                        if (rlt) {
+                                            $("#dg").datagrid("reload");
+                                        }
+                                        else {
+                                            $.messager.alert('提示消息', rlt.message, 'info');
+                                        }
+                                    };
+                                });
+                            });
+                        });
+                        $(".btnpass").each(function (index, el) {
+                            $(this).bind("click", function () {
+                                var cid = $(this).data("id");
+                                $.messager.confirm('确认', '您确定要启用员工吗？', function (r) {
+                                    if (r) {
+                                        //删除
+                                        var rlt = req({ id: cid }, '/staff/pass');
+                                        if (rlt) {
+                                            $("#dg").datagrid("reload");
+                                        }
+                                        else {
+                                            $.messager.alert('提示消息', rlt.message, 'info');
+                                        }
+                                    };
+                                });
+                            });
+                        });
+                    },
+                    rowStyler: function (index, row) {
+                        //每行的高度
+                        return 'height:24px;';
+                    }
+                },
+                null,
+                {
+                    formatter: function (value, row, index) {
+                        var html = "";
+                        html += '<a href="javascript:void(0)" class="btnedit" data-id="' + row.id + '"  data-name="' + row.realName + '" data-editid="edit' + row.id + '"    data-options="plain:true" style="width:40px;height:20px;"><span id="color">编辑</span></a>';
+                        if (row.status=="禁用") {
+                            html += '<a href="javascript:void(0)" class="btnpass"  data-id="' + row.id + '" data-name="' + row.realName + '" data-deleteid="delete' + row.id + '"data-options="plain:true"style="width:40px;height:20px;"><span id="color">启用</span></a>';
+                        }
+                        if (row.status=="正常") {
+                            html += '<a href="javascript:void(0)" class="btndelete"  data-id="' + row.id + '" data-name="' + row.realName + '" data-deleteid="delete' + row.id + '"data-options="plain:true"style="width:40px;height:20px;"><span id="color">禁用</span></a>';
+                        }
+                        return html;
+                    }
+                }
+            );
+            __dgcreator.create();
+        });
+
+        //菜单栏查询数据
+        function select() {
+            var js = {
+                "username": $("#username").val(),
+                "staffname": $("#staffname").val()
+            };
+            __dgcreator.setdata(js);
+        }
+
+        //菜单栏重置按钮
+        function reset() {
+            $("#formMain").form("reset");
+            __dgcreator.setdata({});
+        }
+        function req(data, url) {
+            var json = null;
+            $.ajax({
+                async: false,
+                type: "POST",
+                url: url,
+                data: data,
+                success: function (data) {
+                    json = data;
+                },
+                //XMLHttpRequest 对象、错误信息、（可选）捕获的异常对象
+                error: function (data, textStatus, errorThrown) {
+                    _this.notice("错误提示", "错误信息：" + data.responseText, "info");
+                },
+                dataType: "json"
+            });
+            return json;
+        }
+        //新增信息
+        $("#btnAdd").click(function () {
+            openDlg("dlgstaff", "新增员工", "/staff/Modify", g_const.largeDlgSize, { opt: "add", id: "0" });
+        });
+    </script>
+
+}

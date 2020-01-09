@@ -1,0 +1,187 @@
+﻿@{
+    ViewBag.Title = "About";
+}
+<div id="tol" style="padding:5px;height:auto;">
+    <div>
+        授权角色为：<span class="easyui-lable" id="roleName">@ViewBag.roleName</span>
+        <a href="#" class="easyui-linkbutton" style="width: 70px;" data-options="iconCls:'icon-save'" onclick="accredit()">授权</a>
+    </div>
+</div>
+<table id="ttree" style="font-size: 20px; background:white; text-align:center;" data-options="fit:true, toolbar:'#tol'"></table>
+@section FootScript{
+    <script>
+        $(function () {
+            myfunction();
+        })
+        function myfunction() {
+            $.ajax({
+                url: "/Home/GetPermsByRole",
+                data: { roleId: @ViewBag.roleId },
+                success: function (data) {
+                    $("#ttree").treegrid("unselectAll");
+                    for (var j = 0; j < data.length; j++) {
+                        $("#ttree").treegrid("select", data[j].permId);
+                    }
+                }
+            })
+        }
+    $("#ttree").treegrid({
+        url: '/Home/GetTree',
+        idField: 'id',
+        parentField: 'parentId',
+        width: "98%",
+        height: "100%",//宽高
+        iconCls: 'ext-icon-application_side_tree',
+        treeField: 'caption',
+        animate: "true",
+        rownumbers: "true",
+        singleSelect: false,
+        frozenColumns: [[
+            { field: 'isEnable', width: '35%', align: 'left', checkbox: true, },
+        ]],
+        columns: [[
+            { field: 'id', title: '编号', align: 'left', hidden:true },
+            { field: 'caption', title: '菜单名称', width: '35%', align: 'left' },
+            { field: 'module', title: '链接路径', width: '35%', align: 'left' },
+            { field: 'description', title: '菜单描述', width: '30%', halign: 'center', align: 'left' },
+        ]],
+        onClickRow: function (rowData) {
+            var selectList = $('#ttree').treegrid("getSelections");
+            //判断是否是选中
+            var isck = false;
+            for (var i = 0; i < selectList.length; i++) {
+                if (selectList[i].id == rowData.id) {
+                    isck = true;
+                    break;
+                }
+            }
+            if (isck) {
+                //是选中
+                if (rowData.parentId == "0") {
+                    for (var i = 0; i < rowData.children.length; i++) {
+                        //父选择了
+                        $("#ttree").treegrid("select", rowData.children[i].id);
+                    }
+                } else {
+                    //debugger;
+                    //子选择了-判断是不是全部选择了如果全部选择了就把父选上
+                    //得到所有数据
+                    var allData = $('#ttree').treegrid("getData");
+                    //是不是全选,默认全选
+                    var selectAll = true;
+                    //找到父节点
+                    var parentRowData;
+                    for (var i = 0; i < allData.length; i++) {
+                        //找到这个父
+                        if (allData[i].id == rowData.parentId) {
+                            parentRowData = allData[i];
+                            break;
+                        }
+                    }
+                    //判断这个父下的子是不是都选中
+                    for (var i = 0; i < parentRowData.children.length; i++) {
+                        //判断子是不是被选中
+                        var sonCK = false;
+                        //从所有数据里面找不在选择里面的
+                        for (var j = 0; j < selectList.length; j++) {
+                            //选中数据里面有一个不是选中的就不是全选
+                            if (selectList[j].id == parentRowData.children[i].id && selectList[j].parentId == parentRowData.children[i].parentId) {
+                                sonCK = true;
+                                break;
+                            }
+                        }
+                        //子有一个没选中
+                        if (sonCK == false) {
+                            selectAll = false;
+                            break;
+                        }
+                    }
+                    //子全选了
+                    if (selectAll) {
+                        //父也得选上
+                        $("#ttree").treegrid("select", rowData.parentId);
+                    }
+                }
+            } else {
+                //是取消
+                if (rowData.parentId == "0") {
+                    for (var i = 0; i < rowData.children.length; i++) {
+                        //父取消了-子也得取消
+                        $("#ttree").treegrid("unselect", rowData.children[i].id);
+                    }
+                } else {
+                    //子取消父必须取消
+                    $("#ttree").treegrid("unselect", rowData.parentId);
+                }
+            }
+        },
+    });
+
+    //获取选中复选框的id
+    function getIds() {
+        var selectList = $('#ttree').treegrid("getSelections");
+        ids = [];
+        for (var i = 0; i < selectList.length; i++) {
+            ids.push(selectList[i].id);
+        }
+        ids = ids.join();
+        return ids;
+    }
+
+    //授权
+    function accredit() {
+        var roleId = '@ViewBag.roleId';
+        var roleName = '@ViewBag.roleName';
+        var ids = getIds();
+        if (ids.length<=0) {
+            $.messager.alert("警告", "未选择任何菜单权限", "warning");
+            return false;
+        }
+        $.messager.confirm('确认', '您确定给' + roleName + '角色授权吗？', function (r) {
+            if (r) {
+                $.ajax({
+                    url: "/Home/Accredit",
+                    type: "post",
+                    dataType: "json",
+                    data: { roleId: roleId, ids: ids },
+                    success: function (data) {
+                        if (data.status) {
+                            $.messager.show({
+                                title: "提示消息",
+                                msg: "授权成功",
+                                timeout: 3000,
+                                showType: 'fade'
+                            });
+                            setTimeout(function () {
+                                parent.$("#dlgperm").window("close");
+                            },3000)
+                        }
+                        else {
+                            $.messager.show({
+                                title: "提示消息",
+                                msg: "授权失败",
+                                timeout: 3000,
+                                showType: 'fade'
+                            });
+                        }
+                    },
+                    error: function (error) {
+                        $.messager.alert("错误", error + '！', 'error');
+                    }
+                })
+            }
+        });
+    }
+
+    //全选
+    function All() {
+        $(':checkbox').prop("checked", true);
+
+    }
+    //全不选
+    function noAll() {
+        $(':checkbox').prop("checked", false);
+    }
+
+    </script>
+}

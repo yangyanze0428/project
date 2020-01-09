@@ -1,0 +1,138 @@
+﻿@using Domain.Common.Enums
+
+@{
+    ViewBag.Title = "产品列表";
+}
+@*表格显示*@
+<table id="dg" style="font-size: 20px; background:white;" data-options="fit:true, toolbar:'#tool'"></table>
+@*搜索框*@
+<div id="tool" name="tool" style="background-color:#f4f4f4;display:none;">
+    <div style="margin:0 5px">
+        <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true">@Html.Caption(PageResource.ButtonNew)</a>
+    </div>
+    <form id="formMain" class="easyui-form">
+        <div style="margin-bottom: 3px">
+            开始时间: <input class="easyui-datetimebox" id="startTime" name="startTime" data-options="editable:false" style="width: 150px">
+
+            客户账号:<input class="easyui-textbox" id="userid" style="width: 230px;">
+
+        </div>
+        <div>
+            结束时间: <input class="easyui-datetimebox" id="endTime" name="endTime" data-options="editable:false" style="width: 150px">
+
+            <a href="#" class="easyui-linkbutton" style="width: 70px;" onclick="select()" data-options="iconCls:'icon-search'">@Html.Caption(PageResource.ButtonSearch)</a>
+            <a href="#" class="easyui-linkbutton" style="width: 70px;" onclick="reset()" data-options="iconCls:'icon-reload'">@Html.Caption(PageResource.ButtonReset)</a>
+        </div>
+    </form>
+</div>
+@*新增/修改界面*@
+<div id="dlg" style="display:none;padding: 0;">
+    <iframe></iframe>
+</div>
+
+@section FootScript{
+    <script>
+    var _operater; //操作
+    var _operaterText; //操作描述
+    var _describe = "产品列表"; //描述
+    var __dgcreator;
+    var _url = "/prod";//路径
+    var _tableName = "dg";//表格名
+    var _toolName = "tool";//搜索框名
+
+    $(function () {
+        __dgcreator = new dgcreator(
+            "#" + _tableName,
+            _url,
+            "",
+            "prod",
+            {
+                onLoadSuccess: function () {
+                    $('.btnedit').linkbutton();//编辑
+                    $('.btndelete').linkbutton(); //删除
+                    $(".btnedit").each(function (index, el) {
+                        $(this).bind("click", function () {
+                            var cid = $(this).data("id");
+                            openDlg("dlg", "编辑", "/prod/modi", g_const.largeDlgSize, {opt: "update", id: cid });
+                        });
+                    });
+                    $(".btndelete").each(function (index, el) {
+                        $(this).bind("click", function () {
+                            var cid = $(this).data("id");
+                            $.messager.confirm('确认', '您确定要删除吗？', function (r) {
+                                if (r) {
+                                    var rlt = req({ id: cid }, "/prod/delete");
+                                    if (rlt) {
+                                        $("#" + _tableName).datagrid("reload", "/prod/GetList");
+                                    }
+                                };
+                            });
+                        });
+                    });
+
+                },
+                rowStyler: function (index, row) {
+                    //每行的高度
+                    return 'height:24px;';
+                }
+            },
+            null,
+            {
+                formatter: function (value, row, index) {
+                    var html = "";
+                    html += '<a href="javascript:void(0)" class="btnedit"  data-id="' + row.id + '" data-options="plain:true"style="width:40px;height:20px;"><span id="color">编辑</span></a>';
+                    html += '<a href="javascript:void(0)" class="btndelete"  data-id="' + row.id + '" data-deleteid="delete' + row.id + '"data-options="plain:true"style="width:40px;height:20px;"><span id="color">删除</span></a>';
+                    return html;
+                }
+            }
+        );
+        __dgcreator.beforeCreate = function (cols) {
+        };
+        __dgcreator.create();
+    });
+   
+    //菜单栏查询数据
+    function select() {
+        var js = {
+            "userid": $("#userid").val(),
+            "startTime": $("#startTime").datebox('getValue'),
+            "endTime": $("#endTime").datebox('getValue')
+        };
+        __dgcreator.setdata(js);
+    }
+
+    //菜单栏重置按钮
+    function reset() {
+        $("#formMain").form("reset");
+        __dgcreator.setdata({});
+    }
+    function req(data, url) {
+        var json = null;
+        $.ajax({
+            async: false,
+            type: "POST",
+            url: url,
+            data: data,
+            success: function (data) {
+                json = data;
+            },
+            //XMLHttpRequest 对象、错误信息、（可选）捕获的异常对象
+            error: function (data, textStatus, errorThrown) {
+                _this.notice("错误提示", "错误信息：" + data.responseText, "info");
+            },
+            dataType: "json"
+        });
+        return json;
+    }
+    //新增信息
+    $("#btnAdd").click(function () {
+        openDlg("dlg", "新增", "/prod/modi", g_const.largeDlgSize, { opt: "add", id: "0" });
+    });
+    </script>
+}
+
+
+
+
+
+

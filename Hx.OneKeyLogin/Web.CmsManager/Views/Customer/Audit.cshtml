@@ -1,0 +1,103 @@
+﻿@model Domain.Common.Dtos.MemberShip.AuthentyDto
+@{
+    Layout = "_DlgLayout";
+    ViewBag.Title = "企业审核";
+}
+
+<form id="formMain" method="post" class="easyui-form cont" data-options="novalidate:true">
+    <table id="tst">
+        <tbody>
+            <tr>
+                <td>账号：</td>
+                <td>
+                    <input class="easyui-textbox easyui-validatebox" id="Id" name="Id" value="@Model.Id" style="width: 180px; height: 32px" data-options="required:true, validType:{remote:['/cust','id']},prompt:'请输入账号',missingMessage:'账号不能为空',invalidMessage:'账号已存在/账号非法'">
+                </td>
+                <td class="tbcol3"><span>*注：手机号或邮箱</span></td>
+            </tr>
+            <tr>
+                <td>公司名称：</td>
+                <td>
+                    <input class="easyui-textbox" id="BusinessContact" name="BusinessContact" value="@Model.Name" style="width: 180px; height: 32px" data-options="required:true,missingMessage:'请输入真实姓名'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>营业执照：</td>
+                <td>
+                    <input class="easyui-textbox" id="BusinessContact" name="BusinessContact" value="@Model.Licence" style="width: 180px; height: 32px" data-options="required:true,missingMessage:'请输入真实姓名'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>手机号：</td>
+                <td>
+                    <input class="easyui-textbox" id="BusinessPhone" name="BusinessPhone" value="@Model.Phone" style="width: 180px; height: 32px" data-options="required:true, validType:{remote:['/staff/valid','id']},prompt:'请输入手机号',missingMessage:'手机号不能为空',invalidMessage:'手机号非法'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>电话：</td>
+                <td>
+                    <input class="easyui-textbox" id="BusinessPhone" name="BusinessPhone" value="@Model.Telephone" style="width: 180px; height: 32px" data-options="required:true, validType:{remote:['/staff/valid','id']},prompt:'请输入手机号',missingMessage:'手机号不能为空',invalidMessage:'手机号非法'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>邮箱：</td>
+                <td>
+                    <input class="easyui-textbox" id="BusinessEmail" name="BusinessEmail" value="@Model.Email" style="width: 180px; height: 32px" data-options="required:true,validType:{remote:['/verify','id']},prompt:'请输入邮箱',invalidMessage:'邮箱非法',missingMessage:'邮箱不能为空'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>地址：</td>
+                <td>
+                    <input class="easyui-textbox" id="BusinessQq" name="BusinessQq" value="@Model.Address" style="width: 180px; height: 32px">
+                </td>
+            </tr>
+            <tr>
+                <td>创建时间：</td>
+                <td>
+                    <input class="easyui-textbox" id="Remark" name="Remark" value="@Model.CreateDate" style="width: 400px; height: 45px">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+@section FootScript{
+    <script src="~/js/jquery.form/jquery.form.js"></script>
+    <script>
+        $(function () {
+            setHandler(function () {
+                var rlt = false;
+                var options = {
+                    beforeSubmit: function (formData, jqForm, options) {
+                        return $("#formMain").form('enableValidation').form("validate");
+                    },
+                    success: function (response, statusText, xhr, $form) {
+                        if (response.status) {
+                            rlt = true;
+                        } else {
+                            $.messager.alert("提示", response.message, null, function () {
+
+                            });
+                            rlt = false;
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $.messager.alert('错误', error);
+                        rlt = false;
+                    },
+                    dataType: "json",
+                    async: false
+                };
+                $('#formMain').ajaxSubmit(options);
+                return rlt;
+            },
+                function () {
+                    parent.$("#dg").datagrid("reload");
+                }
+            );
+        });
+    </script>
+}

@@ -1,0 +1,175 @@
+﻿@{
+    ViewBag.Title = "角色管理";
+}
+<div id="tol" style="padding:5px;height:auto;">
+    <div>
+        授权用户：<input class="easyui-combobox" id="cbbox_staff" data-options="editable:false" style="width:150px;height:25px;">
+        <a href="#" class="easyui-linkbutton" style="width: 70px;" data-options="iconCls:'icon-save'" onclick="accredit()">授权</a>
+    </div>
+</div>
+<table id="dg" style="font-size: 20px; background:white; text-align:center;" data-options="fit:true, toolbar:'#tol'"></table>
+@*编辑角色界面*@
+<div id="dlgrole" style="display:none;padding: 0;">
+    <iframe src=""></iframe>
+</div>
+@*编辑权限界面*@
+<div id="dlgperm" style="display:none;padding: 0;">
+    <iframe src=""></iframe>
+</div>
+@section FootScript{
+    <script>
+        var __dgcreator;
+        $(function () {
+            __dgcreator = new dgcreator(
+                "#dg",
+                "/Role",
+                "",
+                "role",
+                {
+                    idField: "id",
+                    singleSelect: true,//允许多选
+                    pagination: false,//是否分页
+                    checkOnSelect: true,//点击复选框的时候才会被选中
+                    onLoadSuccess: function () {
+                        $('.btnrole').linkbutton(); //编辑权限
+                        $('.btnedit').linkbutton(); //编辑
+                        $('.btndelete').linkbutton(); //删除
+                        //////////修改 获取id的值/////////////////////////////////////////
+                        $(".btnedit").each(function (index, el) {
+                            $(this).bind("click", function () {
+                                var cid = $(this).data("id");
+                                openDlg("dlgrole", "修改角色", "/role/Modify", g_const.middleDlgSize, { opt: "update", id: cid });
+                            });
+                        });
+                        //////////删除/////////////////////////////////////////
+                        $(".btndelete").each(function (index, el) {
+                            $(this).bind("click", function () {
+                                var cid = $(this).data("id");
+                                var cname = $(this).data("name");
+                                $.messager.confirm('确认', '您确定要删除【' + cname + '】角色吗？', function (r) {
+                                    if (r) {
+                                        var rlt = __dgcreator.del(cid, '/staff/delete');
+                                        if (rlt == "true") {
+                                            $("#dg").datagrid("reload", "/Role/GetList");
+                                        }
+                                        else {
+                                            $.messager.alert('提示消息', '角色删除失败', 'info');
+                                        }
+                                    };
+                                });
+                            });
+                        });
+                        //////////编辑权限/////////////////////////////////////////
+                        $(".btnrole").each(function (index, el) {
+                            $(this).bind("click", function () {
+                                var roleId = $(this).data("id");
+                                openDlg("dlgperm", "编辑权限", "/Home/About", g_const.maxDlgSize, { roleId: roleId });
+                            });
+                        });
+                    },
+                    onClickRow: function (rowData) {
+                        var selectList = $('#dg').treegrid("getSelections");
+                        //判断是否是选中
+                        var isck = false;
+                        for (var i = 0; i < selectList.length; i++) {
+                            if (selectList[i].id == rowData.id) {
+                                isck = true;
+                                break;
+                            }
+                        }
+                        getIds(selectList);//获取选中复选框的id
+                    },
+                    rowStyler: function (index, row) {
+                        //每行的高度
+                        return 'height:24px;';
+                    }
+                },
+                colformatter,
+                {
+                    formatter: function (value, row, index) {
+                        var html = "";
+                        html += '<a href="javascript:void(0)" class="btnrole" data-id="' + row.id + '"  data-name="' + row.roleName + '" data-editid="edit' + row.id + '"    data-options="plain:true" style="width:80px;height:20px;"><span id="color">编辑权限</span></a>'; //+ (perms[0] == 1);
+                        html += '<a href="javascript:void(0)" class="btnedit" data-id="' + row.id + '"  data-name="' + row.roleName + '" data-editid="edit' + row.id + '"    data-options="plain:true" style="width:40px;height:20px;"><span id="color">编辑</span></a>'; //+ (perms[0] == 1);
+                        // html += '<a href="javascript:void(0)" class="btndelete"  data-id="' + row.id + '" data-name="' + row.roleName + '" data-deleteid="delete' + row.id + '"data-options="plain:true"style="width:40px;height:20px;"><span id="color">删除</span></a>';
+                        return html;
+                    }
+                }
+            );
+            __dgcreator.create();
+        });
+
+        function colformatter(colidx) {
+            if (colidx == -1) {
+                return "check";
+            }
+            return null;
+        }
+
+        //新增信息
+        $("#btnAdd").click(function () {
+            $('#dlgrole').window({
+                title: '新建角色',
+                modal: true
+            });
+            $("#ifmrole").attr("src", "/Role/Modify?opt=add&id=0");
+        });
+
+        //获取选中复选框的id
+        function getIds(selectList) {
+            ids = [];
+            for (var i = 0; i < selectList.length; i++) {
+                ids.push(selectList[i].id);
+            }
+            ids = ids.join();
+        }
+        //授权
+        function accredit() {
+            var userId = $("#cbbox_staff").combobox("getValue");
+            if (userId == "0") {
+                $.messager.alert("警告", "未选择任何用户", "warning");
+                return false;
+            }
+            var userName = $("#cbbox_staff").combobox("getText");
+            $.messager.confirm('确认', '您确定给' + userName + '用户授权吗？', function (r) {
+                if (r) {
+                    $.ajax({
+                        url: "/Role/Accredit",
+                        type: "post",
+                        dataType: "json",
+                        data: { userId: userId, ids: ids },
+                        success: function (data) {
+                            if (data.status) {
+                                $("#dg").datagrid("reload");
+                            }
+                            else {
+                                $.messager.alert('错误', data.message);
+                            }
+                        },
+                        error: function (error) {
+                            $.messager.alert("错误", error + '！', 'error');
+                        }
+                    })
+                }
+            });
+        }
+
+        //用户下拉菜单
+        $("#cbbox_staff").combobox({
+            url: '/Role/GetStaffList',
+            valueField: 'id',
+            textField: 'text',
+            onChange: function () {//改变事件
+                $.ajax({
+                    url: "/Role/GetRoleByUser",
+                    data: { userId: $("#cbbox_staff").combobox("getValue") },
+                    success: function (data) {
+                        $("#dg").datagrid("unselectAll");
+                        for (var j = 0; j < data.length; j++) {
+                            $("#dg").datagrid("selectRecord", data[j].roleId);
+                        }
+                    }
+                })
+            }
+        });
+    </script>
+}

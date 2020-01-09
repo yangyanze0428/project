@@ -1,0 +1,51 @@
+﻿@model IEnumerable<Domain.Common.Dtos.Order.ProdDto>
+@{
+    ViewBag.Title = "产品列表";
+}
+<section class="content">
+    <div class="row">
+
+        @foreach (var item in Model)
+        {
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-aqua">
+                    <div class="inner">
+                        <input type="hidden" value="@item.UserId"/>
+                        <h4>@item.Name</h4>
+                        <h5>@item.Money 元</h5>
+                        @if (item.Value>0)
+                        {
+                            <h6>赠送 @item.Value 条数</h6>
+                        }
+                        <h7>@item.Price 元/条</h7>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-shopping-cart"></i>
+                    </div>
+                    <a href="/Prod/Modify?Id=@item.Id" class="small-box-footer">去购买<i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        }
+    </div>
+   
+</section>
+@*<div style="margin-top:20px;" class="container">
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <div class="small-box bg-aqua">
+                    <div class="inner">
+                        <h3>@item.Value  条</h3>
+                        <h4>@item.Name</h4>
+                        <h5>@item.Money</h5>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-bag"></i>
+                    </div>
+                    <a href="/Prod/Modify?Id=@item.Id" class="small-box-footer">去购买<i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        }
+    </div>
+</div>*@

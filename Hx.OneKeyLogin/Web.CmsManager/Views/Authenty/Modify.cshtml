@@ -1,0 +1,164 @@
+﻿@model Domain.Common.Dtos.MemberShip.AuthentyDto
+@{
+    Layout = "_DlgLayout";
+    ViewBag.Title = "企业认证";
+}
+
+<form id="formMain" method="post" class="easyui-form cont" data-options="novalidate:true">
+    <input id="opt" name="opt" type="hidden" value="@ViewBag.opt" />
+    <input id="Licence" name="Licence" type="hidden" value="@Model.Licence" />
+    @Html.HiddenFor(m=>m.CreateDate)
+    <table id="tst" class="cont">
+        <tbody>
+            <tr>
+                <td>账号：</td>
+                <td>
+                    <input class="easyui-combobox" id="Id" name="Id" value="@Model.Id" style="width: 180px;" data-options="loader: accloader1,mode: 'remote',delay:500,valueField: 'id',textField: 'name',panelHeight:'auto',required:true, validType:{remote:['/cust/exist','id']},prompt:'请输入账号',missingMessage:'账号不能为空',invalidMessage:'账号不存在'">
+                </td>
+                <td class="tbcol3"><span>*注：手机号或邮箱</span></td>
+            </tr>
+            <tr>
+                <td>公司名称：</td>
+                <td>
+                    <input class="easyui-textbox" id="Name" name="Name" value="@Model.Name" style="width: 180px; height: 32px" data-options="required:true,missingMessage:'请输入真实姓名'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>营业执照：</td>
+                @if (ViewBag.opt == "add")
+                {
+                    <td>
+                        <input class="easyui-filebox" id="Licence" name="Licence" value="@Model.Licence" style="width: 180px; height: 32px" data-options="required:true,prompt:'请选择图片！'" buttontext="选择图片" accept="image/*">
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        <input class="easyui-filebox" id="Licence" name="Licence" value="" style="vertical-align:middle;width: 180px; height: 32px" data-options="prompt:'请选择图片！'" buttontext="选择图片" accept="image/*">
+                        <img src="/app/Img?val=@Model.Licence" style="width: 40px; height: 40px; vertical-align: middle">
+                    </td>
+                }
+            </tr>
+            <tr>
+                <td>业务员：</td>
+                <td>
+                    <input class="easyui-combobox" id="SalesMan" name="SalesMan" value="@Model.SalesMan" style="width: 180px;" data-options="required:true, loader: accloader,mode: 'remote',delay:500,valueField: 'id',textField: 'name',panelHeight:'auto',validType:{remote:['/staff/exist','id']},prompt:'请输入业务员',missingMessage:'业务员不能为空',invalidMessage:'业务员不存在'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>手机号：</td>
+                <td>
+                    <input class="easyui-textbox" id="Phone" name="Phone" value="@Model.Phone" style="width: 180px; height: 32px" data-options="required:true, validType:{remote:['/staff/valid','id']},prompt:'请输入手机号',missingMessage:'手机号不能为空',invalidMessage:'手机号非法'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>电话：</td>
+                <td>
+                    <input class="easyui-textbox" id="Telephone" name="Telephone" value="@Model.Telephone" style="width: 180px; height: 32px" data-options="prompt:'请输入固定电话'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>邮箱：</td>
+                <td>
+                    <input class="easyui-textbox" id="Email" name="Email" value="@Model.Email" style="width: 180px; height: 32px" data-options="validType:{remote:['/verify','id']},prompt:'请输入邮箱',invalidMessage:'邮箱非法'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>地址：</td>
+                <td>
+                    <input class="easyui-textbox" id="Address" name="Address" value="@Model.Address" style="width: 180px; height: 32px" data-options="multiline:true,prompt:'请输入公司地址'">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+@section FootScript{
+    <script src="~/js/jquery.form/jquery.form.js"></script>
+    <script>
+        $(function () {
+            setHandler(function () {
+                var rlt = false;
+                var options = {
+                    beforeSubmit: function (formData, jqForm, options) {
+                        return $("#formMain").form('enableValidation').form("validate");
+                    },
+                    success: function (response, statusText, xhr, $form) {
+                        if (response.status) {
+                            rlt = true;
+                        } else {
+                            $.messager.alert("提示", response.message, null, function () {
+
+                            });
+                            rlt = false;
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $.messager.alert('错误', error);
+                        rlt = false;
+                    },
+                    dataType: "json",
+                    async: false
+                };
+                $('#formMain').ajaxSubmit(options);
+                return rlt;
+            },
+                function () {
+                    parent.$("#dg").datagrid("reload");
+                }
+            );
+        });
+        var accloader = function(param,success,error){
+            var q = param.q || '';
+            if (q.length < 1){return false}
+            $.ajax({
+                url: '/staff/query',
+                data: {
+                    q: q
+                },
+                type: "post",
+                success: function(data){
+                    var items = $.map(data, function(value,key){
+                        return {
+                            id: value.key,
+                            name: value.value
+                        };
+                    });
+                    success(items);
+                },
+                error: function(){
+                    error.apply(this, arguments);
+                }
+            });
+            return false;
+        };
+        var accloader1 = function (param, success, error) {
+            var q = param.q || '';
+            if (q.length < 1) { return false }
+            $.ajax({
+                url: '/cus/query',
+                data: {
+                    q: q
+                },
+                type: "post",
+                success: function (data) {
+                    var items = $.map(data, function (value, key) {
+                        return {
+                            id: value.key,
+                            name: value.value
+                        };
+                    });
+                    success(items);
+                },
+                error: function () {
+                    error.apply(this, arguments);
+                }
+            });
+            return false;
+        };
+    </script>
+}

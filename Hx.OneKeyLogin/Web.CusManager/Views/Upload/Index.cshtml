@@ -1,0 +1,28 @@
+﻿@{
+    ViewBag.Title = "下载中心";
+}
+<section class="content">
+    <div class="row">
+
+        @foreach (var upload in ViewBag.upload)
+        {
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-aqua">
+                    <div class="inner">
+                        @*<h4>@upload.Name  </h4>*@
+
+                        <p>@upload.Name </p>
+                    </div>
+                    <div class="icon">
+                        <i class="icon ion-archive"></i>
+                    </div>
+                    <a class="small-box-footer" href="/upload/Download?name=@upload.Name&fileName=@upload.FileName">立即下载<i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        }
+    </div>
+    <div style="height:100px"></div>
+    <img src="~/images/12.png" width="1360" height="200" alt="" />
+
+</section>
+

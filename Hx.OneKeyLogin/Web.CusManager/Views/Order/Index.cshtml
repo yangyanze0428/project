@@ -1,0 +1,135 @@
+﻿@using Domain.Common.Enums
+
+@{
+    ViewBag.Title = "订单管理";
+}
+
+<div class="table-responsive">
+    <div class="panel-body" style="padding-bottom:0px;">
+        <div class="panel panel-default">
+            <div class="panel-heading">订单管理</div>
+            <div class="panel-body">
+                <form id="formSearch" class="form-horizontal">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="Id" placeholder="请输入订单号" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            @Html.DropDownList("OrderType", Html.GetEnumDropDownList(typeof(OrderType)), "请选择", new { @class = "form-control", placeholder = "订单类型" })
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <input type="text" class="form_datetime form-control lot-time" id="StartTime" placeholder="开始时间" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <input type="text" class="form_datetime form-control lot-time" id="EndTime" placeholder="结束时间" />
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" id="btn_query" onclick="select()" class="btn btn-default">
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>@Html.Caption(PageResource.ButtonSearch)
+                        </button>
+                        <button type="button" id="btn-reset" class="btn btn-default">
+                            <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>@Html.Caption(PageResource.ButtonReset)
+                        </button>
+                    </div>
+                    <table id="tb_departments" class="text-nowrap"></table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <iframe style="margin:auto;padding:0"></iframe>
+</div>
+@section footScript{
+    <script>
+        var __dgcreator;
+        $(function () {
+            __dgcreator = new dgcreator("#tb_departments", "/Order", "", "order",
+                {
+                    onLoadSuccess: function () { },
+                    rowStyler: function (index, row) {
+                        //每行的高度
+                        return 'height:24px;';
+                    }
+                },
+                null,
+                null
+            );
+            __dgcreator.create();
+
+            //初始化日期组件
+            $(".lot-time").datetimepicker({
+                minView: "day",//选择日期后，不会再跳转去选择时分秒
+                //format: "yyyy-mm-dd hh:ii:ss",//选择日期后，文本框显示的日期格式
+                format: "yyyy-mm-dd 00:00:00",//选择日期后，文本框显示的日期格式
+                language: 'zh-CN',//汉化
+                autoclose: true //选择日期后自动关闭
+            });
+
+            //菜单栏重置按钮
+            $("#btn-reset").click(function () {
+                $("#Id").val("");
+                $("#OrderType").val("");
+                $("#StartTime").val("");
+                $("#EndTime").val("");
+                $("#tb_departments").bootstrapTable('refresh');
+            })
+        });
+
+        //菜单栏查询数据
+        function select() {
+            var js = {
+                "Id": $("#Id").val(),
+                "OrderType": $("#OrderType").val(),
+                "StartTime": $("#StartTime").val(),
+                "EndTime": $("#EndTime").val()
+            };
+            __dgcreator.setdata(js);
+        }
+        //function add() {
+        //    openDlg("myModal", "新增应用", "/app/modify", g_const.middleDlgSize);
+        //}
+        //function update(id) {
+        //    openDlg("myModal", "修改应用", "/app/modify", g_const.middleDlgSize, { id: id });
+        //}
+        //function del(id) {
+        //    $.ajax({
+        //        url: "/app/delete",
+        //        type: "post",
+        //        dataType: "json",
+        //        async: false,
+        //        data: { id: id },
+        //        success: function (response) {
+        //            if (response) {
+        //                $("#tb_departments").bootstrapTable('refresh');
+        //            }
+        //            else {
+        //                toastr.error(response.message);
+        //            }
+        //        },
+        //        error: function () {
+
+        //        }
+        //    })
+        //}
+
+        //数据行格式化
+        //function colformatter(col) {
+        //    if (col == 2) {
+        //        return colIdxformat2;
+        //    }
+        //    return null;
+        //}
+        //function colIdxformat2(value, row, index) {
+        //    return '<img style="width:40px;height:40px;" src="' + value + '" />';
+        //}
+    </script>
+}

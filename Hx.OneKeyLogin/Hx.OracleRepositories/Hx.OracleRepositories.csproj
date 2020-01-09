@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hx.DapperExtensions" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hx.Dapper.OracleExtensions\Hx.Dapper.OracleExtensions.csproj" />
+    <ProjectReference Include="..\Hx.Db.Oracle\Hx.Db.Oracle.csproj" />
+  </ItemGroup>
+
+</Project>

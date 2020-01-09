@@ -1,0 +1,40 @@
+﻿
+@{
+    ViewBag.Title = "上传";
+}
+<h2>Modify</h2>
+<form id="formMain" action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" />
+    <button id="btn">提交</button>
+</form>
+@section FootScript
+    {
+    <script src="~/jquery.form/jquery.form.js"></script>
+    <script>
+        $(function () {
+
+            var options = {
+                beforeSubmit: function (formData, jqForm, options) {
+                   
+                },
+                success: function (response, statusText, xhr, $form) {
+                    if (response.status) {
+                        window.location.href = response.message;
+                    } else {
+                        window.toastr.error(response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    window.toastr.error(error);
+                },
+                dataType: "json"
+            };
+            $("#btn").click(function () {
+                $('#formMain').ajaxSubmit(options);
+                return false;
+            });
+        });
+
+       
+    </script>
+}

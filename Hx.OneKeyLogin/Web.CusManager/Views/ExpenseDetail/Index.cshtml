@@ -1,0 +1,146 @@
+﻿@{
+    ViewBag.Title = "交易明细";
+}
+
+<div class="table-responsive">
+    <div class="panel-body" style="padding-bottom:0px;">
+        <div class="panel panel-default">
+            <div class="panel-heading">交易明细</div>
+            <div class="panel-body">
+                <form id="formSearch" class="form-horizontal">
+                    <div class="" id="toolbar"></div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="Mobile" placeholder="请输入手机号" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <select id="OperatorType" class="form-control">
+                                <option value="0">请选择运营商</option>
+                                <option value="1">移动</option>
+                                <option value="2">联通</option>
+                                <option value="3">电信</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <input type="text" class="form_datetime form-control lot-time" id="StartTime" placeholder="开始时间" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <input type="text" class="form_datetime form-control lot-time" id="EndTime" placeholder="结束时间" />
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" id="btn_query" onclick="select()" class="btn btn-default">
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>@Html.Caption(PageResource.ButtonSearch)
+                        </button>
+                        <button type="button" id="btn-reset" class="btn btn-default">
+                            <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>@Html.Caption(PageResource.ButtonReset)
+                        </button>
+                    </div>
+                    <table id="tb_departments" class="text-nowrap"></table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <iframe style="margin:auto;padding:0"></iframe>
+</div>
+@section footScript{
+    <script>
+        $(function () {
+            $("#tb_departments").bootstrapTable({    //'destroy' 是必须要加的==作用是加载服务器数据，初始化表格的内容Destroy the bootstrap table.
+                toolbar: '#toolbar', //工具按钮用哪个容器
+                method: 'get',
+                url: "/expenseDetail/getlist",
+                contentType: "application/x-www-form-urlencoded",
+                dataType: "json",
+                pagination: true, //是否显示分页（*）
+                striped: true,//隔行换色
+                sidePagination: 'server',//分页方式
+                pageNumber: 1,//初始化table时显示的页码
+                pageSize: 10,//每页条目
+                pageList: [10, 20, 50, 100],
+                //queryParams: queryParams,
+                locale: 'zh-CN',
+                sortable: true,//排序
+                showColumns: false,//是否显示 内容列下拉框
+                clickToSelect: false,//点击选中checkbox
+                singleSelect: true,//启用单行选中
+                showExport: true,       //是否显示导出
+                exportDataType: "all",//basic', 'all', 'selected'.
+                queryParamsType: "", //默认值为 'limit' ,在默认情况下 传给服务端的参数为：offset,limit,sort
+                // 设置为 ''  在这种情况下传给服务器的参数为：pageSize,pageNumber
+                queryParams: function queryParams(params) {   //设置查询参数
+                    var param = {
+                        pageNumber: params.pageNumber,
+                        pageSize: params.pageSize,
+                    };
+                    return param;
+                },
+                columns: [
+                    {
+                        align: "center",
+                        field: 'mobile',
+                        title: '手机号'
+                    },
+                    {
+                        align: "center",
+                        field: 'successFormat',
+                        title: '状态'
+                    },
+                    {
+                        align: "center",
+                        field: 'successFormat',
+                        title: '状态'
+                    },
+                    {
+                        align: "center",
+                        field: 'operatorTypeDesc',
+                        title: '运营商'
+                    },
+                    {
+                        align: "center",
+                        field: 'createDate',
+                        title: '创建时间'
+                    },
+                ]
+            });
+
+            //初始化日期组件
+            $(".lot-time").datetimepicker({
+                minView: "day",//选择日期后，不会再跳转去选择时分秒
+                //format: "yyyy-mm-dd hh:ii:ss",//选择日期后，文本框显示的日期格式
+                format: "yyyy-mm-dd 00:00:00",//选择日期后，文本框显示的日期格式
+                language: 'zh-CN',//汉化
+                autoclose: true //选择日期后自动关闭
+            });
+
+            //菜单栏重置按钮
+            $("#btn-reset").click(function () {
+                $("#Mobile").val("");
+                $("#OperatorType").val(0);
+                $("#StartTime").val("");
+                $("#EndTime").val("");
+                $("#tb_departments").bootstrapTable('refresh');
+            })
+        });
+
+        //菜单栏查询数据
+        function select() {
+            var query = {
+                "Mobile": $("#Mobile").val(),
+                "OperatorType": $("#OperatorType").val(),
+                "StartTime": $("#StartTime").val(),
+                "EndTime": $("#EndTime").val()
+            };
+            $("#tb_departments").bootstrapTable('refresh', { url: "/ExpenseDetail/GetList", silent: true, query: query });
+        }
+    </script>
+}

@@ -1,0 +1,209 @@
+﻿@model Domain.Common.Dtos.Order.ProdDto
+@{
+    Layout = "_DlgLayout";
+    ViewBag.Title = "增加产品";
+}
+<form id="formMain" method="post" class="easyui-form cont" data-options="novalidate:true">
+    <input id="opt" name="opt" type="hidden" value="@ViewBag.opt" />
+    <input id="CreatorId" name="Operator" type="hidden" value="@Model.CreatorId" />
+    <input id="CreateDate" name="CreateDate" type="hidden" value="@Model.CreateDate" />
+    <input id="SalesMan" name="SalesMan" type="hidden" value="@Model.SalesMan" />
+    <input value="@Model.Id" type="hidden" name="Id" id="Id" />
+    <table id="tst">
+        <tbody>
+            @*<tr>
+                <td>编号：</td>
+                @if (ViewBag.opt == "add")
+                {
+                    <td>
+                        <input class="easyui-textbox easyui-validatebox" id="Id" name="Id" value="@Model.Id" style="width: 180px; height: 32px" data-options="required:true, validType:{remote:['/key','id']},missingMessage:'Appkey不能为空',invalidMessage:'Appkey已存在'">
+                    </td>
+                    <td class="tbcol3"><span></span></td>
+                }
+                else
+                {
+                    <td>
+                        <input class="easyui-textbox" id="Id" type="hidden" name="Id" value="@Model.Id">@Model.Id
+                    </td>
+                }
+            </tr>*@
+            <tr>
+                <td>名称：</td>
+                <td>
+                    <input class="easyui-textbox" id="Name" name="Name" value="@Model.Name" style="width: 180px; height: 32px">
+                </td>
+                <td class="tbcol3"><span></span></td>
+            </tr>
+
+            <tr>
+                <td>金额：</td>
+                <td>
+                    <input class="easyui-textbox easyui-validatebox" id="Money" name="Money" value="@Model.Money" style="width: 180px; height: 32px">
+                </td>
+                <td class="tbcol3"><span></span></td>
+            </tr>
+           
+        <tr>
+            <td>赠送条数：</td>
+            <td>
+                <input class="easyui-textbox" id="Value" name="Value" value="@Model.Value" style="width: 180px;">
+            </td>
+            <td style="color:red"><span></span></td>
+        </tr>
+
+            <tr>
+                <td>单价：</td>
+                <td>
+                    <input class="easyui-textbox" id="Price" name="Price" value="@Model.Price" style="width: 180px; height: 32px">
+                </td>
+                <td style="color:red"><span></span></td>
+            </tr>
+           
+        <tr>
+            <td>客户账号：</td>
+            <td>
+                <input class="easyui-combobox" id="userId" name="userId" value="@Model.UserId" style="width: 180px;" data-options="loader: accloader1,mode: 'remote',delay:500,valueField: 'id',textField: 'name',panelHeight:'auto', validType:'userId',prompt:'请输入账号',missingMessage:'账号不能为空',invalidMessage:'账号不存在'">
+            </td>
+            <td style="color:red"><span></span></td>
+        </tr>
+
+            @*<tr>
+                <td>业务员：</td>
+                <td>
+                    <input class="easyui-combobox" id="SalesMan" name="SalesMan" value="@Model.SalesMan" style="width: 180px;" data-options="required:true,loader: accloader,mode: 'remote',delay:500,valueField: 'id',textField: 'name',panelHeight:'auto',validType:{remote:['/staff/exist','id']},prompt:'请输入业务员',missingMessage:'业务员不能为空',invalidMessage:'业务员不存在'">
+                </td>
+                <td style="color:red"><span></span></td>
+            </tr>*@
+            <tr>
+                <td>备注：</td>
+                <td>
+                    <input class="easyui-textbox" id="Remark" name="Remark" value="@Model.Remark" style="width: 400px; height: 45px">
+                </td>
+                <td style="color:red"></td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+@section FootScript{
+    <script src="~/js/jquery.form/jquery.form.js"></script>
+    <script>
+        $(function () {
+            $('#formMain input').keyup(trimkeyup);
+
+            setHandler(function () {
+                var rlt = false;
+                var options = {
+                    beforeSubmit: function (formData, jqForm, options) {
+                        return $("#formMain").form('enableValidation').form("validate");
+                    },
+                    success: function (response, statusText, xhr, $form) {
+                        if (response.status) {
+                            rlt = true;
+                        } else {
+                            $.messager.alert("提示", response.message, null, function () {
+
+                            });
+                            rlt = false;
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $.messager.alert('错误', error);
+                        rlt = false;
+                    },
+                    dataType: "json",
+                    async: false
+                };
+                $('#formMain').ajaxSubmit(options);
+                return rlt;
+            },
+                function () {
+                    parent.$("#dg").datagrid("reload");
+                }
+            );
+            $.extend($.fn.validatebox.defaults.rules, {
+                //验证用户是否存在
+                userId: {
+                    validator: function (value, params) {
+                        var id = $("#userId").combobox('getValue');
+                        var r = false;
+                        $.ajax({
+                            url: '/cust/exist',
+                            data: { id: id },
+                            async: false,
+                            dataType: "json",
+                            success: function (data) {
+                                if (data == true) {
+                                    r = true;
+                                }
+                            },
+                            error: function () {
+                                $.messager.alert("提示", "系统内部错误", null, function () {
+                                    r = false;
+                                });
+                            }
+                        });
+                        return r;
+                    }
+                },
+                message: '您输入的用户不存在'
+            });
+        });
+
+        function trimkeyup(e) {
+            lucene_objInput = $(this);
+            if (e.keyCode != 38 && e.keyCode != 40 && e.keyCode != 13) {
+                var im = $.trim(lucene_objInput.val());
+                lucene_objInput.val(im);
+            }
+        }
+
+        var accloader = function (param, success, error) {
+            var q = param.q || '';
+            if (q.length < 1) { return false }
+            $.ajax({
+                url: '/staff/query',
+                data: {
+                    q: q
+                },
+                type: "post",
+                success: function (data) {
+                    var items = $.map(data, function (value, key) {
+                        return {
+                            id: value.key,
+                            name: value.value
+                        };
+                    });
+                    success(items);
+                },
+                error: function () {
+                    error.apply(this, arguments);
+                }
+            });
+            return false;
+        };
+        var accloader1 = function (param, success, error) {
+            var q = param.q || '';
+            if (q.length < 1) { return false }
+            $.ajax({
+                url: '/cus/query',
+                data: {
+                    q: q
+                },
+                type: "post",
+                success: function (data) {
+                    var items = $.map(data, function (value, key) {
+                        return {
+                            id: value.key,
+                            name: value.value
+                        };
+                    });
+                    success(items);
+                },
+                error: function () {
+                    error.apply(this, arguments);
+                }
+            });
+            return false;
+        };
+    </script>
+}

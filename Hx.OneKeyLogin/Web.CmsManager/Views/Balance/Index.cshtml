@@ -1,0 +1,61 @@
+﻿@{
+    ViewBag.Title = "一键通_余额";
+}
+@*表格显示*@
+<table id="dg" style="font-size: 20px; background:white;" data-options="fit:true, toolbar:'#tool'"></table>
+@*搜索框*@
+<div id="tool" name="tool" style="background-color:#f4f4f4;display:none;">
+    <form id="formMain" class="easyui-form">
+        <div style="margin-bottom: 3px">
+            客户账号:<input class="easyui-textbox" id="userid" style="width: 230px;">
+            <a href="#" class="easyui-linkbutton" style="width: 70px;" onclick="select()" data-options="iconCls:'icon-search'">@Html.Caption(PageResource.ButtonSearch)</a>
+            <a href="#" class="easyui-linkbutton" style="width: 70px;" onclick="reset()" data-options="iconCls:'icon-reload'">@Html.Caption(PageResource.ButtonReset)</a>
+        </div>
+    </form>
+</div>
+
+@section FootScript{
+    <script>
+        var __dgcreator;
+        $(function () {
+            __dgcreator = new dgcreator(
+                "#dg",
+                "/balance",
+                "",
+                "balance",
+                {
+                    onLoadSuccess: function () {
+                       
+                    },
+                    rowStyler: function (index, row) {
+                        //每行的高度
+                        return 'height:24px;';
+                    }
+                },
+                null,
+               
+            );
+            __dgcreator.create();
+        });
+
+        //菜单栏查询数据
+        function select() {
+            var js = {
+                "userid": $("#userid").val()
+            };
+            __dgcreator.setdata(js);
+        }
+
+        //菜单栏重置按钮
+        function reset() {
+            $("#formMain").form("reset");
+            __dgcreator.setdata({});
+        }
+    </script>
+
+}
+
+
+
+
+

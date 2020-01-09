@@ -1,0 +1,150 @@
+﻿@{
+    ViewBag.Title = "短信管理平台-部门管理";
+}
+@section Head{
+    <script src="~/js/easyui/treegrid-dnd.js"></script>
+}
+@*页面*@
+@*表格显示*@
+<table id="dg" style="font-size: 20px; background:white;"></table>
+@*搜索框*@
+<div id="tool" name="tool" style="background-color: #f4f4f4; display: none;">
+    <div style="margin: 0 5px">
+        <a href="javascript:void(0)" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true">@Html.Caption(PageResource.ButtonNew)</a>
+        <a href="javascript:void(0)" id="btnDelete" class="easyui-linkbutton" iconcls="icon-remove" plain="true">@Html.Caption(PageResource.ButtonDelete)</a>
+        <a href="javascript:void(0)" id="btnEdit" class="easyui-linkbutton" iconcls="icon-edit" plain="true">@Html.Caption(PageResource.ButtonEdit)</a>
+    </div>
+    @*<form id="formMain" method="post" class="easyui-form">
+            <div style="margin-bottom: 3px">
+                名称: <input class="easyui-textbox" id="name" style="width: 130px">
+                是否分公司:
+                    <select class="easyui-combobox" id="isBranch" name="isBranch" style="width: 130px">
+                        <option value="0">全部</option>
+                        <option value="1">是</option>
+                        <option value="0">否</option>
+                    </select>
+                <a href="javascript:void(0)" class="easyui-linkbutton" style="width: 70px;" onclick="select()" data-options="iconCls:'icon-search'">@Html.Caption(PageResource.ButtonSearch)</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" style="width: 70px;" onclick="reset()" data-options="iconCls:'icon-reload'">@Html.Caption(PageResource.ButtonReset)</a>
+            </div>
+        </form>*@
+</div>
+@*新增/修改界面*@
+<div id="dlgorg" style="display:none;">
+    <iframe></iframe>
+</div>
+@section FootScript{
+    <script src="~/js/jquery.form/jquery.form.js"></script>
+    <script>
+        $(function () {
+            $("#dg").treegrid({
+                url: '/tree',
+                idField: 'id',
+                parentField: 'parentId',
+                width: "98%",
+                height: "100%",
+                iconCls: 'ext-icon-application_side_tree',
+                treeField: 'name',
+                fit: true,
+                toolbar: [{
+                    iconCls: 'icon-add',
+                    text:'@Html.Caption(PageResource.ButtonNew)',
+                    handler: function () {
+                        var row = $('#dg').datagrid('getSelected');
+                        if (row == null) {
+                            $.messager.alert("警告", "未选择部门", "warning");
+                            return false;
+                        }
+                        else {
+                            openDlg("dlgorg", "新增部门", "/org/Modify", g_const.middleDlgSize, {id:0});
+                        }
+                    }
+                }, '-', {
+                        iconCls: 'icon-remove',
+                        text:'@Html.Caption(PageResource.ButtonDelete)',
+                        handler: function () {
+                            var row = $('#dg').datagrid('getSelected');
+                            if (row==null) {
+                                $.messager.alert("警告", "未选择部门", "warning");
+                                return false;
+                            }
+                            else {
+                                $.messager.confirm('确认', '您确定要删除【' + row.name + '】吗？', function (r) {
+                                    if (r) {
+                                        //删除
+                                        var rlt = req({ id: row.id }, "/org/Delete");
+                                        if (rlt.status) {
+                                            $("#dg").treegrid("reload");
+                                        }
+                                        else {
+                                            $.messager.alert('提示消息', rlt.message, 'info');
+                                        }
+                                    };
+                                });
+                            }
+                        }
+                }, '-', {
+                        iconCls: 'icon-edit',
+                        text:'@Html.Caption(PageResource.ButtonEdit)',
+                        handler: function () {
+                            var row = $('#dg').datagrid('getSelected');
+                            if (row == null) {
+                                $.messager.alert("警告", "未选择部门", "warning");
+                                return false;
+                            }
+                            else {
+                                openDlg("dlgorg", "修改部门", "/org/Modify", g_const.middleDlgSize, { id: row.id });
+                            }
+                        }
+                }],
+                columns: [[
+                    { field: 'id', title: '编号', align: 'left', hidden: true },
+                    { field: 'name', title: '名称', align: 'left' },
+                    { field: 'remark', title: '备注', align: 'left' },
+                ]],
+                onLoadSuccess: function (row) {
+                    $(this).treegrid('enableDnd', row ? row.id : null);//可拖拽
+                },
+                onDragEnter:function(targetRow, sourceRow) {//sourceRow 被拖拽的行
+                    sourceRow.parentId = targetRow.id;
+                    var rlt = req(sourceRow, "/org/Modify");//拖拽
+                }
+            });
+        });
+
+        ////菜单栏查询数据
+        //function select() {
+        //    var js = {
+        //        "name": $("#name").val(),
+        //        //"isBranch": $("#isBranch").combobox("getValue")
+        //    };
+        //    __dgcreator.setdata(js);
+        //}
+
+        ////菜单栏重置按钮
+        //function reset() {
+        //    $("#formMain").form("reset");
+        //    __dgcreator.setdata({});
+        //}
+
+        //删除
+        function req(data,url) {
+            var json = null;
+            $.ajax({
+                async: false,
+                type: "POST",
+                url: url,
+                data: data,
+                success: function (response) {
+                    json = response;
+                },
+                //XMLHttpRequest 对象、错误信息、（可选）捕获的异常对象
+                error: function (data, textStatus, errorThrown) {
+                    $.messager.alert("错误提示", "错误信息：" + data.responseText, "info");
+                },
+                dataType: "json"
+            });
+            return json;
+        }
+    </script>
+
+}

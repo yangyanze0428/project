@@ -1,0 +1,109 @@
+﻿
+@{
+    Layout = "_DlgLayout";
+    ViewBag.Title = "客户管理-充值";
+}
+
+@section Head{
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        /*新建修改页面表格*/
+        .tbcol1 {
+            text-align: right;
+            width: 200px;
+            height: 40px;
+        }
+
+        .tbcol2 {
+            width: 190px;
+            height: 40px;
+        }
+
+        .tbcol3 {
+            width: 300px;
+            height: 40px;
+        }
+
+            .tbcol3 span {
+                color: red;
+            }
+    </style>
+
+}
+<form id="formMain" method="post" action="/cus/re">
+    <input id="UserId" name="UserId" type="hidden" value="@ViewBag.id" />
+    <table style="width:100%;border:0px;margin-top:15px">
+        <tbody>
+            <tr style="display:none;">
+                @*隐藏 id*@
+                <td class="tbcol1"></td>
+                <td class="tbcol2"><input class="easyui-textbox" id="Id" name="Id" value="@ViewBag.id" style="width: 180px; height: 32px"></td>
+                <td class="tbcol3"></td>
+            </tr>
+            <tr class="rcmsgtype">
+                <td class="tbcol1">当前条数(Db)：</td>
+                <td class="tbcol2">
+                    @ViewBag.DbBalance <span>条</span>
+                </td>
+                <td class="tbcol3"></td>
+            </tr>
+            <tr class="rcmsgtype">
+                <td class="tbcol1">当前条数(R)：</td>
+                <td class="tbcol2">
+                    @ViewBag.RedisBalance <span>条</span>
+                </td>
+                <td class="tbcol3"></td>
+            </tr>
+        @*<tr class="rcmsgtype opt">
+            <td class="tbcol1">充值数(条)：</td>
+            <td class="tbcol2"><input class="easyui-textbox" id="Recharge" name="Recharge" style="width:180px;height:32px"></td>
+            <td class="tbcol3"><span>*</span></td>
+        </tr>*@
+        <tr>
+            <td class="tbcol1">充值金额(元):</td>
+            <td class="tbcol2"><input class="easyui-textbox" id="money" name="money" style="width:180px;height:32px"></td>
+            <td class="tbcol3"><span>*</span></td>
+        </tr>
+            <tr>
+                <td class="tbcol1">备注：</td>
+                <td class="tbcol2"><input class="easyui-textbox" id="Remark" name="Remark" style="width:180px;height:32px"></td>
+                <td class="tbcol3"></td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+@section FootScript{
+    <script src="~/js/jquery.form/jquery.form.js"></script>
+    <script>
+        $(function () {
+            setHandler(function () {
+                var rlt = false;
+                var options = {
+                    success: function (response, statusText, xhr, $form) {
+                        if (response.status) {
+                            rlt = true;
+                        } else {
+                            $.messager.alert("提示", response.message, null, function () {
+
+                            });
+                            rlt = false;
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $.messager.alert('错误', error);
+                        rlt = false;
+                    },
+                    dataType: "json",
+                    async: false
+                };
+                $('#formMain').ajaxSubmit(options);
+                return rlt;
+            }, function () {
+                parent.$("#dg").datagrid("reload");
+            });
+        })
+    </script>
+}

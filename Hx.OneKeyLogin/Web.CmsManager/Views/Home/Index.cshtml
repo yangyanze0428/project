@@ -1,0 +1,168 @@
+﻿@model Web.CmsManager.Models.LoginUser
+@{
+    ViewBag.Title = "主页";
+}
+@section Head{
+    <link href="~/js/easyui/themes/icon_c.css" rel="stylesheet" />
+    <style>
+        .panel-header {
+            border: 0;
+        }
+
+        .tabs-header {
+            border: 0;
+        }
+
+        .alarm {
+            position: relative;
+            width: 80px;
+            height: 25px;
+            margin-left: 1308px;
+            margin-top: 47px;
+        }
+
+            .alarm img {
+                width: 15px;
+                height: 15px;
+            }
+
+        .divright {
+            position: absolute;
+            color: white;
+            font-size: 10px;
+            background-color: red;
+            width: 12px;
+            height: 12px;
+            line-height: 12px;
+            left: 30%;
+            top: -11px;
+            text-align: center;
+            -webkit-border-radius: 24px;
+            border-radius: 24px;
+        }
+    </style>
+
+}
+
+<div id="cc" class="easyui-layout" data-options="fit:true" style="margin: 0 auto;">
+    <div data-options="region:'west',split:true" title="导航菜单" style="width: 180px;">
+
+        <div title="菜单栏" data-options="fit:true,collapsible:false" style="padding: 10px;">
+            <ul id="mnu"></ul>
+        </div>
+
+    </div>
+
+    @*上面 北面*@
+    <div data-options="region:'north'" style="height: 80px">
+        <div style="width: 17%; height: 100%; float: left;">
+            <img src="~/images/logo.png" width="60" height="60" />
+        </div>
+        <div style="width: 6%; height: 85%; float: left; padding: 5px 3px;">
+            <a href="#" class="easyui-linkbutton" plain="true" onclick="openTab('10010','客户管理', '/cus')" style="width: 100%; height: 100%;" data-options="iconCls:'icon-large-khgl',size:'large',iconAlign:'top'">客户管理</a>
+        </div>
+        <div style="width: 6%; height: 85%; float: left; padding: 5px 3px;">
+            <a href="#" class="easyui-linkbutton" plain="true" onclick="openTab('10020','企业认证', '/authenty')" style="width: 100%; height: 100%;" data-options="iconCls:'icon-large-clipart',size:'large',iconAlign:'top'">企业认证</a>
+        </div>
+        <div style="width: 6%; height: 85%; float: left; padding: 5px 3px;">
+            <a href="#" class="easyui-linkbutton" plain="true" onclick="openTab('20010','应用管理', '/app')" style="width: 100%; height: 100%;" data-options="iconCls:'icon-large-dxsh',size:'large',iconAlign:'top'">应用管理</a>
+        </div>
+
+
+        @*<div style="width: 6%; height: 85%; float: left; padding: 5px 3px;">
+            <a href="#" class="easyui-linkbutton" plain="true" onclick="openTab('00000','修改密码', '/Home/CheckPassWord')" style="width: 100%; height: 100%;" data-options="iconCls:'icon-large-xgmm',size:'large',iconAlign:'top'">修改密码</a>
+        </div>*@
+
+        <div style="float: right;height:100%;padding: 5px 3px;">
+            <div style="height:32px;line-height:32px"></div>
+            <div class="easyui-panel" style="padding:5px;border:0;">
+                <a href="javascript:void(0)" class="easyui-menubutton" data-options="menu:'#mm3'">当前用户</a>
+
+                <div id="mm3" class="menu-content" style="padding:10px;text-align:left">
+                    <p style="font-size:14px;color:#444;font-weight:bolder;text-align:center;">@Model.Id</p>
+                    @*<a href="javascript:void(0)" onclick="changepwd()" class="easyui-linkbutton" data-options="plain:true">修改密码</a>*@
+                    <a href="javascript:void(0)" onclick="exit()" style="float:right" class="easyui-linkbutton" data-options="plain:true">退出</a>
+                </div>
+            </div>
+        </div>
+        @*<div class="alarm">
+            <a href="/infomations/index">
+                <img src="~/images/465746f1c49ccc9.jpg" />
+            </a>
+            <div class="divright">
+                <span id="sp_count"></span>
+            </div>
+        </div>*@
+    </div>
+    @*中间*@
+    <div region="center" style="border: 0; background: white;" data-options="tools:'#tt' ">
+        <div id="tt" class="easyui-tabs" style="border: 0; width: 100%; height: 100%;">
+        </div>
+    </div>
+    @*下面 南面*@
+    <div region="south" style="height: 36px;">
+        <div style="text-align: center; margin-top: 5px; border: 0;" id="pages">
+            版权所有@2019 北京创世华信科技有限公司
+        </div>
+    </div>
+</div>
+
+@section FootScript{
+    <script src="~/js/jquery.blockUI/jquery.blockUI.min.js"></script>
+    <script>
+
+        $(function () {
+            $("#mnu").tree({
+                url: "/menu",
+                animate: true,
+                onClick: function (node) {
+                    if ($(this).tree("isLeaf", node.target)) {
+                        openTab(node.id, node.text, node.attributes["url"]);
+                    } else {
+                        $(this).tree(node.state === 'closed' ? 'expand' : 'collapse', node.target);
+                        node.state = node.state === 'closed' ? 'open' : 'closed';
+                    }
+                }
+            });
+            //count();
+        });
+
+        function openTab(id, title, src) {
+            var tabIdx = -1;
+            var tabs = $("#tt").tabs("tabs");
+            for (var i = 0; i < tabs.length; i++) {
+                if (tabs[i].panel('options').id === id) {
+                    tabIdx = $("#tt").tabs('getTabIndex', tabs[i]);
+                    break;
+                }
+            }
+            if (tabIdx > -1) {
+                $("#tt").tabs('select', tabIdx);
+            } else {
+                $("#tt").tabs('add', { id: id, title: title, href: "/tab?id=" + id + "&src=" + src, closable: true, scrollbarSize: 0 });
+            };
+        }
+
+
+        //退出
+        function exit() {
+            $.messager.confirm('确认', '确定退出吗？', function (r) {
+                if (r) {
+                    $.ajax({
+                        url: "/Login/Logout",
+                        type: "post",
+                        success: function (data) {
+                            if (data) {
+                                window.location.href = "/Login";
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        function changepwd() {
+            openTab('00000', '修改密码', '/Home/CheckPassWord');
+        }
+
+    </script>
+}

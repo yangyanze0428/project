@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain.IService\Domain.IService.csproj" />
+    <ProjectReference Include="..\Domain\Domain.Common.csproj" />
+    <ProjectReference Include="..\Hx.CacheManager\Hx.CacheManager.csproj" />
+    <ProjectReference Include="..\Hx.HttpClientFactory\Hx.HttpClientFactory.csproj" />
+    <ProjectReference Include="..\Hx.ICacheManager\Hx.ICacheManager.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.9.4" />
+    <PackageReference Include="Hx.MongoDb" Version="1.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Hx" Version="1.1.28" />
+    <PackageReference Include="Hx.Infrastructure" Version="1.2.26" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.4" />
+    <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain.IService\Domain.IService.csproj" />
+    <ProjectReference Include="..\Domain.Service\Domain.Service.csproj" />
+    <ProjectReference Include="..\Domain\Domain.Common.csproj" />
+    <ProjectReference Include="..\Hx.Db.Oracle\Hx.Db.Oracle.csproj" />
+    <ProjectReference Include="..\Hx.Module.Oracle\Hx.Module.Oracle.csproj" />
+    <ProjectReference Include="..\Hx.OracleRepositories\Hx.OracleRepositories.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Views\Customer\Audit.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

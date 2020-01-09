@@ -1,0 +1,103 @@
+﻿@using Microsoft.AspNetCore.Mvc.RazorPages
+
+@{
+    Layout = "_Layout";
+    var el = Context.Request.Query.ContainsKey("el") ? Context.Request.Query["el"].ToString() : "";
+
+}
+
+@section Head
+    {
+    <style>
+
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        /*新建修改页面表格*/
+
+        .tbcol1 {
+            text-align: right;
+            width: 200px;
+            height: 40px;
+        }
+
+        .tbcol2 {
+            width: 200px;
+        }
+
+        .tbcol3 {
+            text-align: left;
+            width: 300px;
+        }
+
+            .tbcol3 span {
+                color: red;
+            }
+
+        .cont {
+            margin-top: 10px;
+        }
+
+            .cont > table {
+                width: 90%;
+                margin: 0 auto;
+            }
+
+                .cont > table > tr {
+                    height: 40px;
+                    margin: 5px auto;
+                }
+
+                    .cont > table > tr > td:nth-child(1) {
+                        width: 100px;
+                    }
+
+                    .cont > table > tr > td:nth-child(2) {
+                        width: 300px;
+                    }
+
+                .cont > table > select {
+                    width: 120px;
+                    height: 30px
+                }
+    </style>
+    @RenderSection("Head", false)
+}
+
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div data-options="region:'center',border:false">
+        @RenderBody()
+    </div>
+    <div data-options="region:'south',border:false" style="height: 40px;">
+        <a href="#" class="easyui-linkbutton" id="__lbtnClose" data-options="iconCls:'icon-cancel'" style="width: 100px; height: 28px; float: right;margin-right: 5px">取消</a>
+        <a href="#" class="easyui-linkbutton" id="__lbtnOk" data-options="iconCls:'icon-ok'" style="width: 100px; height: 28px; float: right;margin-right: 5px">确定</a>
+    </div>
+</div>
+@section FootScript
+    {
+    <script>
+        var _handler = function() { return true; }
+        var _successHandler = function() {}
+        $("#__lbtnClose").click(function() {
+            parent.$("#@el").window('close');
+        });
+
+        $("#__lbtnOk").click(function() {
+            if (_handler()) {
+                parent.$("#@el").window('close');
+                _successHandler();
+            }
+        });
+
+        function setHandler(closeHandler, successHandler) {
+            if (typeof (closeHandler) != "function") return;
+            _handler = closeHandler;
+            if (typeof (successHandler) == "function") {
+                _successHandler = successHandler;
+            }
+        }
+
+    </script>
+    @RenderSection("FootScript", false)
+}

@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\errors\404.html" />
+    <None Include="wwwroot\errors\500.html" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Alipay.AopSdk.AspnetCore" Version="2.4.0" />
+    <PackageReference Include="Autofac" Version="4.9.4" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Hx" Version="1.1.34" />
+    <PackageReference Include="Hx.Infrastructure" Version="1.2.31" />
+    <PackageReference Include="Hx.MongoDb" Version="1.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.4" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain.IService\Domain.IService.csproj" />
+    <ProjectReference Include="..\Domain.Service\Domain.Service.csproj" />
+    <ProjectReference Include="..\Domain\Domain.Common.csproj" />
+    <ProjectReference Include="..\Hx.CacheManager\Hx.CacheManager.csproj" />
+    <ProjectReference Include="..\Hx.Db.Oracle\Hx.Db.Oracle.csproj" />
+    <ProjectReference Include="..\Hx.ICacheManager\Hx.ICacheManager.csproj" />
+    <ProjectReference Include="..\Hx.Module.Oracle\Hx.Module.Oracle.csproj" />
+    <ProjectReference Include="..\Hx.OracleRepositories\Hx.OracleRepositories.csproj" />
+    <ProjectReference Include="..\Hx.Pay.Ali\Hx.Pay.Ali.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
+
+</Project>

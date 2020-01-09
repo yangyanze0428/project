@@ -1,0 +1,144 @@
+﻿@using Domain.Common.Enums
+@model Domain.Common.Dtos.MemberShip.StaffDto
+@{
+    Layout = "_DlgLayout";
+    ViewBag.Title = "员工";
+}
+
+<form id="formMain" method="post" class="easyui-form cont" data-options="novalidate:true">
+    <input id="staffopt" name="staffopt" type="hidden" value="@ViewBag.opt" />
+    <input id="CreateDate" name="CreateDate" type="hidden" value="@Model.CreateDate" />
+    <input id="Status" name="Status" type="hidden" value="@Model.Status" />
+    <table id="tst">
+        <tbody>
+            <tr>
+                <td>账号：</td>
+                @if (ViewBag.opt == "add")
+                {
+                    <td>
+                        <input class="easyui-textbox easyui-validatebox" id="Id" name="Id" value="@Model.Id" style="width: 180px; height: 32px" data-options="required:true, validType:{remote:['/stav','id']},prompt:'请输入账号',missingMessage:'账号不能为空',invalidMessage:'账号已存在/账号非法'">
+                    </td>
+                    <td id="cnamesign" style="color:red">*注：手机号或邮箱</td>
+                }
+                else
+                {
+                    <td> <input type="hidden" id="Id" name="Id" value='@Model.Id' />@Model.Id</td>
+                    <td></td>
+                }
+            </tr>
+            @if (ViewBag.opt == "add")
+            {
+                <tr>
+                    <td>密码：</td>
+                    <td>
+                        <input class="easyui-passwordbox" id="PassWord" name="PassWord" value="@Model.Password" style="width: 180px; height: 32px" data-options="required:true">
+                    </td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td>新密码：</td>
+                    <td>
+                        <input type="hidden" id="PassWord" name="PassWord" value='@Model.Password' />
+                        <input class="easyui-passwordbox" id="NewPassWord" name="NewPassWord" data-options="prompt:'密码'" style="width: 180px; height: 32px">
+                    </td>
+                    <td class="tbcol3"><span>*注：密码重置</span></td>
+                </tr>
+            }
+            <tr>
+                <td>真实姓名：</td>
+                <td>
+                    <input class="easyui-textbox" id="Name" name="Name" value="@Model.Name" style="width: 180px; height: 32px" data-options="required:true,missingMessage:'请输入真实姓名'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>账号类型：</td>
+                <td>
+                    <input class="easyui-combobox" id="UserType" name="UserType" style="width: 180px; height: 32px;" data-options="
+                                       valueField:'id',
+                                       textField:'text',
+                                       url:'/UserType',
+                                       panelHeight:'200',
+                                       editable:false ">
+                    @*@Html.DropDownList("UserType", new SelectList(ViewBag.ulists, "Value", "Text"), new {@class = "easyui-combobox", @style = "width: 180px; height: 32px", @editable = false, @panelHeight = "150"})*@
+                    @*@Html.DropDownList("UserType", Html.GetEnumDropDownList(typeof(UserType)), "全部", new { @class = "easyui-combobox", editable = false, style = "width:180px" })*@
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>所属部门：</td>
+                <td>
+                    @*<input class="easyui-combotree" id="OrgId" name="OrgId" value="@Model.OrgId" style="width:180px;height:32px;" data-options="required:true,missingMessage:'请选择部门'">*@
+                    <span id="sp_org" hidden="hidden">@Model.OrgId</span>
+                    <select class="easyui-combotree easyui-validatebox" id="OrgId" name="OrgId" style="width:180px;height:32px;" data-options="required:true,prompt:'请选择部门',missingMessage:'部门不能为空'">
+                    </select>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>手机号：</td>
+                <td>
+                    <input class="easyui-textbox easyui-validatebox" id="Phone" name="Phone" value="@Model.Phone" style="width: 180px; height: 32px" validType="mobile" data-options="required:true, validType:{remote:['/staff/valid','id']},prompt:'请输入手机号',missingMessage:'手机号不能为空',invalidMessage:'手机号非法'">
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>备注：</td>
+                <td>
+                    <input class="easyui-textbox" id="Remark" name="Remark" value="@Model.Remark" style="width: 400px; height: 45px">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+@section FootScript{
+    <script src="~/js/jquery.form/jquery.form.js"></script>
+    <script>
+        $(function () {
+            //初始化部门树
+            $("#OrgId").combotree({
+                url: '/staff/tree',
+                editable: false,
+                panelHeight: '200',
+                required: true,
+                onLoadSuccess: function () {
+                    if ($("#sp_org").html() != "0")
+                        $("#OrgId").combotree("setValue", $("#sp_org").html());
+                }
+            });
+            
+            setHandler(function () {
+                var rlt = false;
+                var options = {
+                    beforeSubmit: function (formData, jqForm, options) {
+                        return $("#formMain").form('enableValidation').form("validate");
+                    },
+                    success: function (response, statusText, xhr, $form) {
+                        if (response.status == true) {
+                            rlt = true;
+                        } else {
+                            $.messager.alert("提示", response.message, null, function () {
+
+                            });
+                            rlt = false;
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $.messager.alert('错误', error);
+                        rlt = false;
+                    },
+                    dataType: "json",
+                    async: false
+                };
+                $('#formMain').ajaxSubmit(options);
+                return rlt;
+            },
+                function () {
+                    parent.$("#dg").datagrid("reload");
+                }
+            );
+        });
+    </script>
+}

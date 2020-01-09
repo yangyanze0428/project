@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.4.0" />
+    <PackageReference Include="Hx.ObjectMapping" Version="1.1.0" />
+    <PackageReference Include="MediatR" Version="7.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain.IService\Domain.IService.csproj" />
+    <ProjectReference Include="..\Domain.Service\Domain.Service.csproj" />
+    <ProjectReference Include="..\Hx.CacheManager\Hx.CacheManager.csproj" />
+    <ProjectReference Include="..\Hx.Db.Oracle\Hx.Db.Oracle.csproj" />
+    <ProjectReference Include="..\Hx.HttpClientFactory\Hx.HttpClientFactory.csproj" />
+    <ProjectReference Include="..\Hx.ICacheManager\Hx.ICacheManager.csproj" />
+    <ProjectReference Include="..\Hx.Module.MediatR\Hx.Module.MediatR.csproj" />
+    <ProjectReference Include="..\Hx.Module.Oracle\Hx.Module.Oracle.csproj" />
+    <ProjectReference Include="..\Hx.OracleRepositories\Hx.OracleRepositories.csproj" />
+    <ProjectReference Include="..\Hx.Web\Hx.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ValidationRule\" />
+  </ItemGroup>
+
+</Project>

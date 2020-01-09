@@ -1,0 +1,211 @@
+﻿@using Domain.Common.Enums
+@model Domain.Common.Dtos.MemberShip.CustomerDto
+@{
+    Layout = "_DlgLayout";
+    ViewBag.Title = "客户";
+}
+
+<form id="formMain" method="post" class="easyui-form cont" data-options="novalidate:true">
+    <input id="opt" name="opt" value="@ViewBag.opt" type="hidden" />
+    <input id="clientperms" name="clientperms" type="hidden" />
+    <input id="CreateDate" name="CreateDate" type="hidden" value="@Model.CreateDate" />
+    <input id="Operator" name="Operator" type="hidden" value="@Model.Operator" />
+    <input id="Creator" name="Creator" type="hidden" value="@Model.Creator" />
+    <input id="Status" name="Status" type="hidden" value="@Model.Status" />
+    <input id="PermsId" name="PermsId" type="hidden" value="@Model.PermsId" />
+    <input id="AuditResult" name="AuditResult" type="hidden" value="@Model.AuditResult" />
+    <table id="tst" class="cont">
+        <tbody>
+            <tr>
+                <td>账号：</td>
+                @if (Model.Id == null)
+                {
+                    <td>
+                        <input class="easyui-textbox easyui-validatebox" id="Id" name="Id" value="@Model.Id" style="width: 180px; height: 32px" data-options="required:true, validType:{remote:['/cust','id']},prompt:'请输入账号',missingMessage:'账号不能为空',invalidMessage:'账号已存在/账号非法'">
+                    </td>
+                    <td class="tbcol3"><span>*注：手机号或邮箱</span></td>
+                }
+                else
+                {
+                    <td><input type="hidden" id="Id" name="Id" value='@Model.Id' />@Model.Id</td>
+                    <td></td>
+                }
+            </tr>
+            @if (Model.Id == null)
+            {
+                <tr>
+                    <td>密码：</td>
+                    <td>
+                        <input class="easyui-passwordbox easyui-validatebox"  id="PassWord" name="PassWord" value="@Model.PassWord" style="width: 180px; height: 32px" data-options="required:true,invalidMessage:'密码长度必须在6到18位之间',validType:'length[6,18]'">
+                    </td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td>新密码：</td>
+                    <td>
+                        <input type="hidden" id="PassWord" name="PassWord" value='@Model.PassWord' />
+                        <input class="easyui-passwordbox" id="NewPassWord" name="NewPassWord" data-options="prompt:'密码'" style="width: 180px; height: 32px">
+                    </td>
+                    <td class="tbcol3"><span>*注：密码重置</span></td>
+                </tr>
+
+            }
+            <tr>
+                <td>联系人：</td>
+                <td>
+                    <input class="easyui-textbox" id="BusinessContact" name="BusinessContact" value="@Model.BusinessContact" style="width: 180px; height: 32px" data-options="required:true,missingMessage:'请输入真实姓名'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>手机号：</td>
+                <td>
+                    <input class="easyui-textbox" id="BusinessPhone" name="BusinessPhone" value="@Model.BusinessPhone" style="width: 180px; height: 32px" data-options="required:true, validType:{remote:['/staff/valid','id']},prompt:'请输入手机号',missingMessage:'手机号不能为空',invalidMessage:'手机号非法'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>邮箱：</td>
+                <td>
+                    <input class="easyui-textbox" id="BusinessEmail" name="BusinessEmail" value="@Model.BusinessEmail" style="width: 180px; height: 32px" data-options="required:true,validType:{remote:['/verify','id']},prompt:'请输入邮箱',invalidMessage:'邮箱非法',missingMessage:'邮箱不能为空'">
+                </td>
+                <td style="color:red">*</td>
+            </tr>
+            <tr>
+                <td>QQ：</td>
+                <td>
+                    <input class="easyui-textbox" id="BusinessQq" name="BusinessQq" value="@Model.BusinessQq" style="width: 180px; height: 32px">
+                </td>
+            </tr>
+            <tr>
+                <td>业务员：</td>
+                <td>
+                    <input class="easyui-combobox" id="SalesMan" name="SalesMan" value="@Model.SalesMan" style="width: 180px;" data-options="required:true,loader: accloader,mode: 'remote',delay:500,valueField: 'id',textField: 'name',panelHeight:'auto',validType:{remote:['/staff/exist','id']},prompt:'请输入业务员',missingMessage:'业务员不能为空',invalidMessage:'业务员不存在'">
+                </td>
+                <td class="tbcol3"><span>*注：请谨慎选择</span></td>
+            </tr>
+        <tr>
+            <td>客户端功能选择：</td>
+            <td>
+                <input class="easyui-combotree" id="ClientMenu" name="ClientMenu" value="@Model.ClientMenu" style="width: 180px; height: 32px" />
+            </td>
+            <td class="tbcol3"><span>注：客户端登录菜单选项</span></td>
+        </tr>
+        <tr>
+            <td>单价：</td>
+            <td>
+                <input class="easyui-textbox" id="Price" name="Price" value="@Model.Price" style="width: 180px; height: 32px" data-options="required:true,missingMessage:'请输入真实姓名'">
+            </td>
+        </tr>
+            <tr>
+                <td>付费方式：</td>
+                <td>
+                    @Html.DropDownList("PayMode", Html.GetEnumDropDownList(typeof(PayMode)), "全部", new { @class = "easyui-combobox", editable = false, panelHeight = "auto", style = "width:180px;height:32px;" })
+                </td>
+                <td class="tbcol3"></td>
+            </tr>
+            <tr>
+                <td>备注：</td>
+                <td>
+                    <input class="easyui-textbox" id="Remark" name="Remark" value="@Model.Remark" style="width: 400px; height: 45px">
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</form>
+@section FootScript{
+    <script src="~/js/jquery.form/jquery.form.js"></script>
+    <script>
+        $(function () {
+            //客户端功能选项
+            $("#ClientMenu").combotree({
+                url: '/cus/tree',
+                editable: false,
+                panelHeight: '230',
+                multiple: true,
+                onLoadSuccess: function (node, data) {//全选中
+                    var permsId = [];
+                    if ('@Model.PermsId'.length > 0) {
+                        permsId = '@Model.PermsId'.split(',');
+                        $("#ClientMenu").combotree('setValues', permsId);
+                    }
+                    else {
+                        var arr = [];
+                        if (data.length > 0) {
+                            for (var j = 0; j < data.length; j++) {//一级菜单
+                                arr.push(data[j].id);
+                                for (var i = 0; i < data[j].children.length; i++) {//二级菜单
+                                    arr.push(data[j].children[i].id);
+                                    for (var t = 0; t < data[j].children[i].children.length; t++) {//三级菜单
+                                        arr.push(data[j].children[i].children[t].id);
+                                    }
+                                }
+                            }
+                            $("#ClientMenu").combotree('setValues', arr);
+                        }
+                    }
+                }
+            });
+            setHandler(function () {
+                    //获取选中的客户端功能选项
+                var permsId = $("#ClientMenu").combobox("getValues");
+                $("#clientperms").val(permsId.join(','));
+                var rlt = false;
+                var options = {
+                    beforeSubmit: function (formData, jqForm, options) {
+                        return $("#formMain").form('enableValidation').form("validate");
+                    },
+                    success: function (response, statusText, xhr, $form) {
+                        if (response.status) {
+                            rlt = true;
+                        } else {
+                            $.messager.alert("提示", response.message, null, function () {
+
+                            });
+                            rlt = false;
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $.messager.alert('错误', error);
+                        rlt = false;
+                    },
+                    dataType: "json",
+                    async: false
+                };
+                $('#formMain').ajaxSubmit(options);
+                return rlt;
+            },
+                function () {
+                    parent.$("#dg").datagrid("reload");
+                }
+            );
+        });
+        var accloader = function(param,success,error){
+            var q = param.q || '';
+            if (q.length < 1){return false}
+            $.ajax({
+                url: '/staff/query',
+                data: {
+                    q: q
+                },
+                type: "post",
+                success: function(data){
+                    var items = $.map(data, function(value,key){
+                        return {
+                            id: value.key,
+                            name: value.value
+                        };
+                    });
+                    success(items);
+                },
+                error: function(){
+                    error.apply(this, arguments);
+                }
+            });
+            return false;
+        };
+    </script>
+}

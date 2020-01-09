@@ -1,0 +1,138 @@
+﻿@using Domain.Common.Enums
+
+@{
+    ViewBag.Title = "一键通_订单";
+}
+@*表格显示*@
+<table id="dg" style="font-size: 20px; background:white;" data-options="fit:true, toolbar:'#tool'"></table>
+@*搜索框*@
+<div id="tool" name="tool" style="background-color:#f4f4f4;display:none;">
+    <div style="margin:0 5px">
+        <a href="#" id="btnAdd" class="easyui-linkbutton" iconcls="icon-add" plain="true">@Html.Caption(PageResource.ButtonNew)</a>
+    </div>
+    <form id="formMain" class="easyui-form">
+        <div style="margin-bottom: 3px">
+            开始时间: <input class="easyui-datetimebox" id="startTime" name="startTime" data-options="editable:false" style="width: 150px">
+            客户账号:<input class="easyui-textbox" id="userid" style="width: 230px;">
+            订单名称: <input id="name" class="easyui-textbox" style="width: 230px">
+
+        </div>
+        <div>
+            结束时间: <input class="easyui-datetimebox" id="endTime" name="endTime" data-options="editable:false" style="width: 150px">
+            订单Id: <input id="id" class="easyui-textbox" style="width: 230px">
+            订单类型: @Html.DropDownList("orderType", Html.GetEnumDropDownList(typeof(OrderType)), "全部", new { @class = "easyui-combobox", editable = false, style = "width:230px", panelHeight = "auto" })
+            <a href="#" class="easyui-linkbutton" style="width: 70px;" onclick="select()" data-options="iconCls:'icon-search'">@Html.Caption(PageResource.ButtonSearch)</a>
+            <a href="#" class="easyui-linkbutton" style="width: 70px;" onclick="reset()" data-options="iconCls:'icon-reload'">@Html.Caption(PageResource.ButtonReset)</a>
+        </div>
+    </form>
+</div>
+@*新增/修改界面*@
+<div id="dlg" style="display:none;padding: 0;">
+    <iframe></iframe>
+</div>
+
+@section FootScript{
+    <script>
+        var __dgcreator;
+        $(function () {
+            __dgcreator = new dgcreator(
+                "#dg",
+                "/order",
+                "",
+                "order",
+                {
+                    onLoadSuccess: function () {
+                        $('.btnedit').linkbutton(); //修改
+                        $('.btndelete').linkbutton(); //删除
+                        //////////修改 获取id的值/////////////////////////////////////////
+                        $(".btnedit").each(function (index, el) {
+                            $(this).bind("click", function () {
+                                var cid = $(this).data("id");
+                                openDlg("dlg", "修改", "/order/Modify", g_const.middleDlgSize, { opt: "update", id: cid });
+                            });
+                        });
+                        //////////删除/////////////////////////////////////////
+                        $(".btndelete").each(function (index, el) {
+                            $(this).bind("click", function () {
+                                var cid = $(this).data("id");
+                                $.messager.confirm('确认', '您确定要删除吗？', function (r) {
+                                    if (r) {
+                                        //删除
+                                        var rlt = req({ id: cid }, '/order/delete');
+                                        if (rlt) {
+                                            $("#dg").datagrid("reload");
+                                        }
+                                        else {
+                                            $.messager.alert('提示消息', rlt.message, 'info');
+                                        }
+                                    };
+                                });
+                            });
+                        });
+                    },
+                    rowStyler: function (index, row) {
+                        //每行的高度
+                        return 'height:24px;';
+                    }
+                },
+                null,
+                {
+                    formatter: function (value, row, index) {
+                        var html = "";
+                        html += '<a href="javascript:void(0)" class="btnedit" data-id="' + row.id + '"  data-name="' + row.realName + '" data-editid="edit' + row.id + '"    data-options="plain:true" style="width:40px;height:20px;"><span id="color">编辑</span></a>';
+                        html += '<a href="javascript:void(0)" class="btndelete"  data-id="' + row.id + '" data-name="' + row.realName + '" data-deleteid="delete' + row.id + '"data-options="plain:true"style="width:40px;height:20px;"><span id="color">删除</span></a>';
+                        return html;
+                    }
+                }
+            );
+            __dgcreator.create();
+        });
+
+        //菜单栏查询数据
+        function select() {
+            var js = {
+                "id": $("#id").val(),
+                "name": $("#name").val(),
+                "userid": $("#userid").val(),
+                "orderType": $("#orderType").val(),
+                "startTime": $("#startTime").datebox('getValue'),
+                "endTime": $("#endTime").datebox('getValue')
+            };
+            __dgcreator.setdata(js);
+        }
+
+        //菜单栏重置按钮
+        function reset() {
+            $("#formMain").form("reset");
+            __dgcreator.setdata({});
+        }
+        function req(data, url) {
+            var json = null;
+            $.ajax({
+                async: false,
+                type: "POST",
+                url: url,
+                data: data,
+                success: function (data) {
+                    json = data;
+                },
+                //XMLHttpRequest 对象、错误信息、（可选）捕获的异常对象
+                error: function (data, textStatus, errorThrown) {
+                    _this.notice("错误提示", "错误信息：" + data.responseText, "info");
+                },
+                dataType: "json"
+            });
+            return json;
+        }
+        //新增信息
+        $("#btnAdd").click(function () {
+            openDlg("dlg", "新增", "/order/Modify", g_const.middleDlgSize, { opt: "add", id: "0" });
+        });
+    </script>
+
+}
+
+
+
+
+

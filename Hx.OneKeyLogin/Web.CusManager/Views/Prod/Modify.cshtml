@@ -1,0 +1,45 @@
+﻿@model Domain.Common.Dtos.Order.ProdDto
+@{
+    ViewBag.Title = "详细列表";
+}
+<form method="post" action="/pay/PayDo">
+    <div class="box box-info">
+        <div class="col-xs-12">
+            <h2 class="page-header">
+                <i class="fa fa-globe"></i> 详细列表
+                <small class="pull-right"></small>
+            </h2>
+        </div>
+        <div class="col-xs-12 table-responsive" style="text-align:center">
+            <table class="table table-striped">
+                <tbody>
+                    <tr>
+                        <td><input type="hidden" id="Id" name="Id" value="@Model.Id">
+                            <input type="hidden" id="pay" name="pay" value="ali">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="Name">名称</label></td>
+                        <td><input type="hidden" id="Name" name="Name" value="@Model.Name">@Model.Name</td>
+                    </tr>
+                    <tr>
+                        <td><label for="Money">付款金额(元)</label></td>
+                        <td><input type="hidden" id="Money" name="Money" value="@Model.Money">@Model.Money</td>
+                    </tr>
+                    <tr>
+                        <td><label for="Total">总条数(条)</label></td>
+                        <td><input type="hidden" id="Total" name="Total" value="@Model.Total">@Model.Total</td>
+                    </tr>
+                    <tr>
+                        <td><label for="Remark">备注</label></td>
+                        <td><input type="hidden" id="Remark" name="Remark" value="@Model.Remark">@Model.Remark</td>
+                    </tr>
+                <tr>
+                    <td colspan="2"><button class="btn btn-primary"  style="display:block; margin: 0 auto;">去支付</button></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</form>

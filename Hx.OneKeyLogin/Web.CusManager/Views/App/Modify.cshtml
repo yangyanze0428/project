@@ -1,0 +1,180 @@
+﻿@model Domain.Common.Dtos.App.AppDto
+@using Domain.Common.Enums
+@{
+    ViewBag.Title = "应用详情";
+}
+
+<div class="box box-info">
+    <div class="col-xs-12">
+        <h2 class="page-header">
+            <i class="fa fa-globe"></i> 应用详情
+            <small class="pull-right"></small>
+        </h2>
+    </div>
+    <div class="col-xs-12 table-responsive">
+        <table class="table table-striped">
+            <tbody>
+                <tr>
+                    <td><label for="AppName">应用名称</label></td>
+                    <td>@Html.DisplayFor(m => m.AppName)</td>
+                </tr>
+                <tr>
+                    <td><label for="Icon">应用图标</label></td>
+                    <td><img src="/app/Img?val=@Model.Icon" style="width: 80px; height: 80px; vertical-align: middle"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="javascript:void(0)" data-animation="true" data-toggle="tooltip" data-placement="top" title="AppKey为应用的唯一标示，在集成SDK及调用API时需要。" for="AppKey">AppKey</a>
+                    </td>
+                    <td>@Html.DisplayFor(m => m.Id)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="javascript:void(0)" data-animation="true" data-toggle="tooltip" data-placement="top" title="用于服务器端API调用时与AppKey配合使用达到鉴权的目的，用于验证调用的合法性。" for="AppSecret">App Secret</a>
+                    </td>
+                    <td>@Html.DisplayFor(m => m.AppSecret)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="javascript:void(0)" data-animation="true" data-toggle="tooltip" data-placement="top" title="系统生成的ID，在调用API时需要使用。" for="MessageSecret">Message Secret</a>
+                    </td>
+                    <td>@Html.DisplayFor(m => m.MessageSecret)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="javascript:void(0)" data-animation="true" data-toggle="tooltip" data-placement="top" title="" for="Signature">应用签名</a>
+                    </td>
+                    <td>@Html.DisplayFor(m => m.Signature)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="javascript:void(0)" data-animation="true" data-toggle="tooltip" data-placement="top" title="根据Android标准的原则进行设计，包名(Package Name)作为应用的唯一标识。" for="AndroidId">安卓包名</a>
+                    </td>
+                    <td>@Html.DisplayFor(m => m.AndroidId)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="javascript:void(0)" data-animation="true" data-toggle="tooltip" data-placement="top" title="Bundle ID(Bundle Identifer)是一款IOS应用的唯一标识，应用与Bundle ID之间是唯一对应关系。" for="BundleId">Bundle ID</a>
+                    </td>
+                    <td>@Html.DisplayFor(m => m.BundleId)</td>
+                </tr>
+                <tr>
+                    <td><label for="AppType">应用类型</label></td>
+                    <td>@Html.DisplayFor(m => m.AppTypeDesc)</td>
+                </tr>
+                <tr>
+                    <td><label for="CreateDate">创建时间</label></td>
+                    <td>@Html.DisplayFor(m => m.CreateDate)</td>
+                </tr>
+                <tr>
+                    <td><label for="OperateDate">上次修改时间</label></td>
+                    <td>@Html.DisplayFor(m => m.OperateDate)</td>
+                </tr>
+                <tr>
+                    <td><label for="Remark">备注</label></td>
+                    <td>@Html.DisplayFor(m => m.Remark)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+@section footScript{
+<script>
+    $(function () {
+        $("[data-toggle='tooltip']").tooltip();  
+    })
+</script>
+    @*<script>
+            $(function () {
+                $('#formMain').bootstrapValidator({
+                    message: 'This value is not valid',
+                    feedbackIcons: {
+                        valid: 'glyphicon glyphicon-ok',
+                        invalid: 'glyphicon glyphicon-remove',
+                        validating: 'glyphicon glyphicon-refresh'
+                    },
+                    fields: {
+                        AppName: {
+                            validators: {
+                                notEmpty: {
+                                    message: '应用名称不能为空'
+                                }
+                            }
+                        },
+                        Icon: {
+                            validators: {
+                                notEmpty: {
+                                    message: '应用图标不能为空'
+                                }
+                            }
+                        },
+                        //AndroidId: {
+                        //    validators: {
+                        //        notEmpty: {
+                        //            message: '安卓包名不能为空'
+                        //        }
+                        //    }
+                        //},
+                        //BundleId: {
+                        //    validators: {
+                        //        notEmpty: {
+                        //            message: 'Bundle不能为空'
+                        //        }
+                        //    }
+                        //},
+                        AppType: {
+                            validators: {
+                                notEmpty: {
+                                    message: '应用类型不能为空'
+                                }
+                            }
+                        },
+                        //Remark: {
+                        //    validators: {
+                        //        notEmpty: {
+                        //            message: '备注不能为空'
+                        //        }
+                        //    }
+                        //}
+                    }
+                });
+
+                setHandler(function () {
+                    var rlt = false;
+                    var options = {
+                        beforeSubmit: function (formData, jqForm, options) {
+                            var bootstrapValidator = $("#formMain").data('bootstrapValidator');
+                            bootstrapValidator.validate();
+                            if (bootstrapValidator.isValid())
+                                return true;
+                            else return false;
+                            //return $("#formMain").form('enableValidation').form("validate");
+                        },
+                        success: function (response, statusText, xhr, $form) {
+                            if (response.status == true) {
+                                rlt = true;
+                            } else {
+                                toastr.error("提示", response.message, null, function () {
+
+                                });
+                                rlt = false;
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            toastr.error(error);
+                            rlt = false;
+                        },
+                        dataType: "json",
+                        async: false
+                    };
+                    $('#formMain').ajaxSubmit(options);
+                    return rlt;
+                },
+                    function () {
+                        parent.$("#tb_departments").bootstrapTable("refresh");
+                    }
+                );
+            })
+        </script>*@
+}
+

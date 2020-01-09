@@ -1,0 +1,85 @@
+﻿@{
+    Layout = "_DlgLayout";
+    ViewBag.Title = "增加角色";
+}
+
+<form id="formMain" class="easyui-form cont" method="post">
+    <input id="opt" name="opt" type="hidden" value="@ViewBag.opt" />
+    <table id="tro">
+        <tbody>
+            @*隐藏 id*@
+            <tr style="display:none;">
+                <td>ID</td>
+                <td><input class="easyui-textbox" id="Id" name="Id" value="@ViewBag.id" style="width: 180px; height: 32px"></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>名称：</td>
+                <td>
+                    <input class="easyui-textbox" id="RoleName" name="RoleName" style="width: 300px;">
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>描述：</td>
+                <td>
+                    <input class="easyui-textbox" id="Description" name="Description" data-options="multiline:true" style="width: 300px; height: 60px">
+                </td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+@section FootScript{
+    <script src="~/js/jquery.form/jquery.form.js"></script>
+    <script>
+        $(function () {
+            if ($("#opt").val() == "update") {//反填数据
+                var id = '@ViewBag.id';
+                get(id);
+            };
+
+            setHandler(function () {
+                var rlt = false;
+                var options = {
+                    beforeSubmit: function (formData, jqForm, options) {
+                        return $("#formMain").form('enableValidation').form("validate");
+                    },
+                    success: function (response, statusText, xhr, $form) {
+                        if (response.status == true) {
+                            rlt = true;
+                        } else {
+                            $.messager.alert("提示", "失败", null, function () {
+
+                            });
+                            rlt = false;
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $.messager.alert('错误', error);
+                        rlt = false;
+                    },
+                    dataType: "json",
+                    async: false
+                };
+                $('#formMain').ajaxSubmit(options);
+                return rlt;
+            },
+                function () {
+                    parent.$("#dg").datagrid("reload");
+                });
+        })
+
+        function get(id) {
+            $.ajax({
+                url: "/Role/get",
+                data: { id: id },
+                async: false,
+                dataType: "json",
+                success: function (data) {
+                    SetValue("tro", data);
+                }
+            })
+        }
+    </script>
+}

@@ -1,0 +1,148 @@
+﻿@model Domain.Common.Dtos.MemberShip.AuthentyDto
+@{
+    ViewBag.Title = "企业认证";
+}
+<div class="box box-info">
+    <div class="box-header with-border">
+        <h3 class="box-title">企业认证</h3>
+    </div>
+    <div class="box-body">
+        <form id="formMain" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="Name">公司名称</label>
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control", placeholder = "公司名称" })
+            </div>
+            <div class="form-group">
+                <label for="Telephone">电话</label>
+                @Html.TextBoxFor(m => m.Telephone, new { @class = "form-control", placeholder = "电话" })
+            </div>
+            <div class="form-group">
+                <label for="Address">地址</label>
+                @Html.TextBoxFor(m => m.Address, new { @class = "form-control", placeholder = "地址" })
+            </div>
+            <div class="form-group">
+                <label for="Email">邮箱</label>
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "邮箱" })
+            </div>
+            <div class="form-group">
+                <label for="Phone">手机</label>
+                @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", placeholder = "手机" })
+            </div>
+            <input id="input-id" type="file" name="Licence" multiple class="file-loading" accept="image/*" />
+        </form>
+    </div>
+</div>
+@section footScript{
+    <script src="~/jquery.form/jquery.form.js"></script>
+    <script>
+        $(function () {
+            $('#formMain').bootstrapValidator({
+                message: 'This value is not valid',
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    Name: {
+                        validators: {
+                            notEmpty: {
+                                message: '公司名称不能为空'
+                            }
+                        }
+                    },
+                    Email: {
+                        validators: {
+                            emailAddress: {
+                                message: '邮箱格式不正确'
+                            }
+                        }
+                    },
+                    Phone: {
+                        validators: {
+                            regexp: {
+                                regexp: /^1[3456789]\d{9}$/,
+                                message: '手机号格式不正确'
+                            }
+                        }
+                    }
+                }
+            });
+
+            $("#input-id").fileinput({
+                theme: 'zh',
+                uploadUrl: '/Authenty/Modify', //上传的地址
+                dropZoneTitle: '可以将图片拖放到这里 …支持多文件上传',
+                language: 'zh', //设置语言
+                showCaption: false, //是否显示标题I
+                showUpload: true, //是否显示上传按钮!
+                uploadLabel: "提交",// 上传按钮内容
+                showRemove: true, //是否显示删除按钮
+                showPreview: true, //是否显示文件的预览图
+                overwriteInitial: false, //不覆盖已存在的图片
+                initialPreviewShowDelete: true,
+                showClose: true, //是否显示关闭按钮
+                //minImageWidth: 400,
+                //图片的最小宽度
+                //minImageHeight: 400,
+                //图片的最小高度
+                //maxImageWidth: 800, //图片的最大宽度
+
+                previewSettings: {
+                    image: { width: "5000px", height: "500px" }
+                },
+                browseClass: "btn btn-primary", //按钮样式
+                maxFileCount: 20,//表示允许同时上传的最大文件个数
+                allowedFileExtensions: ['jpg', 'png', 'jpeg'], //接收的文件后缀
+                uploadAsync: false,//是否为异步上传
+                uploadExtraData: function () {
+                    var bootstrapValidator = $("#formMain").data('bootstrapValidator');
+                    bootstrapValidator.validate();
+                    if (bootstrapValidator.isValid()) {
+                        return {
+                            RelatedType: window._relatedType,
+                            RelatedId: window._relatedId,
+                            ImageType: window._imageType,
+                            Name: $('#Name').val(),
+                            Telephone: $('#Telephone').val(),
+                            Address: $('#Address').val(),
+                            Email: $('#Email').val(),
+                            Phone: $('#Phone').val(),
+                            CreateDate: $('#CreateDate').val()
+                        };
+                    }
+                    else return false;
+                },
+                layoutTemplates: {
+                    actionUpload: '',//去除上传预览缩略图中的上传图片
+                    actionZoom: '',   //去除上传预览缩略图中的查看详情预览的缩略图标
+                    actionDownload: '', //去除上传预览缩略图中的下载图标
+                    actionDelete: '' //去除上传预览的缩略图中的删除图标
+                },
+                //initialPreview: _ingNameArr,
+                //initialPreviewConfig: initPreviewConfig,
+                fileActionSettings: {
+                    //removeClass:'hideBtn'
+                },
+                //deleteUrl: _delUrl,
+                maxFileSize: 10240//单位为kb，如果为0表示不限制文件大小
+            }).on("filebatchuploadsuccess", function (event, data, previewId, index) {//上传成功回调
+                if (data.response.status) {
+                    location.href = "/Authenty/Index";
+                }
+                else {
+                    window.toastr.error(data.response.message);
+                }
+            }).on('filebatchuploaderror', function (event, data, msg) {//上传失败
+                window.toastr.error('文件上传失败！');
+            }).on('filepreajax', function (event, previewId, index) {//上传之前 验证
+                var bootstrapValidator = $("#formMain").data('bootstrapValidator');
+                bootstrapValidator.validate();
+                return bootstrapValidator.isValid();
+            });
+        })
+    </script>
+}
+
+
+

@@ -1,0 +1,222 @@
+﻿
+@{
+    ViewBag.Title = "应用备案";
+}
+
+<div class="table-responsive">
+    <div class="panel-body" style="padding-bottom:0px;">
+        <div class="panel panel-default">
+            <div class="panel-heading">应用备案</div>
+            <div class="panel-body">
+                <form id="formSearch" class="form-horizontal">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="Id" placeholder="请输入AppKey" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="AppName" placeholder="请输入应用名称" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <input type="text" class="form_datetime form-control lot-time" id="StartTime" placeholder="开始时间" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <input type="text" class="form_datetime form-control lot-time" id="EndTime" placeholder="结束时间" />
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" id="btn_query" onclick="select()" class="btn btn-default">
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>@Html.Caption(PageResource.ButtonSearch)
+                        </button>
+                        <button type="button" id="btn-reset" class="btn btn-default">
+                            <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>@Html.Caption(PageResource.ButtonReset)
+                        </button>
+                        @*<button id="btn-add" type="button" onclick="add()" class="btn btn-default">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>@Html.Caption(PageResource.ButtonNew)
+                            </button>*@
+                    </div>
+                    <table id="tb_departments" class="text-nowrap"></table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <iframe style="margin:auto;padding:0"></iframe>
+</div>
+@section footScript{
+    
+    <script>
+        $(function () {
+            window.operateEvents = {
+                'click #update': function (e, value, row, index) {
+                    location.href = '/app/modify?id=' + row.id;
+                    //openDlg("myModal", "应用详情", "/app/modify", g_const.middleDlgSize, { id: row.id });
+                },
+                'click #delete': function (e, value, row, index) {
+                    bootbox.confirm({
+                        size: "small",
+                        message: "确定删除【" + row.appName + "】吗?",
+                        swapButtonOrder: true,
+                        buttons: {
+                            confirm: {
+                                label: '确定',
+                                className: 'btn-info'
+                            },
+                            cancel: {
+                                label: '取消',
+                                className: 'btn-danger'
+                            }
+                        },
+                        callback: function (result) {
+                            if (result) {
+                                del(row.id);
+                            }
+                        }
+                    })
+                }
+            };
+            $("#tb_departments").bootstrapTable({    //'destroy' 是必须要加的==作用是加载服务器数据，初始化表格的内容Destroy the bootstrap table.
+                toolbar: '#toolbar', //工具按钮用哪个容器
+                method: 'get',
+                url: "/app/getlist",
+                contentType: "application/x-www-form-urlencoded",
+                align: "center",
+                dataType: "json",
+                pagination: true, //是否显示分页（*）
+                striped: true,//隔行换色
+                sidePagination: 'server',//分页方式
+                pageNumber: 1,//初始化table时显示的页码
+                pageSize: 10,//每页条目
+                pageList: [10, 20, 50, 100],
+                //queryParams: queryParams,
+                locale: 'zh-CN',
+                sortable: true,//排序
+                showColumns: false,//是否显示 内容列下拉框
+                clickToSelect: false,//点击选中checkbox
+                singleSelect: true,//启用单行选中
+                showExport: true,       //是否显示导出
+                exportDataType: "all",//basic', 'all', 'selected'.
+                queryParamsType: "", //默认值为 'limit' ,在默认情况下 传给服务端的参数为：offset,limit,sort
+                // 设置为 ''  在这种情况下传给服务器的参数为：pageSize,pageNumber
+                queryParams: function queryParams(params) {   //设置查询参数
+                    var param = {
+                        pageNumber: params.pageNumber,
+                        pageSize: params.pageSize,
+                    };
+                    return param;
+                },
+                columns: [
+                    {
+                        align: "center",
+                        field: 'appName',
+                        title: '应用名称'
+                    },
+                    {
+                        align: "center",
+                        field: 'icon',
+                        title: '应用图标',
+                        formatter: function (value, row, index) {
+                            return [
+                                "<img src='/app/Img?val=" + row.icon + "' style='width:40px;height:40px'/>"
+                            ].join('');
+                        }
+                    },
+                    {
+                        align: "center",
+                        field: 'id',
+                        title: 'AppKey'
+                    },
+                    {
+                        align: "center",
+                        field: 'androidId',
+                        title: '安卓包名'
+                    },
+                    {
+                        align: "center",
+                        field: 'bundleId',
+                        title: 'Bundle ID'
+                    },
+                    {
+                        align: "center",
+                        field: 'createDate',
+                        title: '创建时间'
+                    },
+                    {
+                        align: "center",
+                        field: 'operate',
+                        title: "操作",
+                        events: operateEvents,//给按钮注册事件
+                        formatter: function (value, row, index) {//表格中增加按钮
+                            return [
+                                '<button id="update" type="button" class="btn btn-info">详情</button>',
+                                '&nbsp;<button id="delete" type="button" class="btn btn-warning">删除</button>',
+                            ].join('');
+                        }
+                    }
+                ]
+            });
+
+            //初始化日期组件
+            $(".lot-time").datetimepicker({
+                minView: "day",//选择日期后，不会再跳转去选择时分秒
+                //format: "yyyy-mm-dd hh:ii:ss",//选择日期后，文本框显示的日期格式
+                format: "yyyy-mm-dd 00:00:00",//选择日期后，文本框显示的日期格式
+                language: 'zh-CN',//汉化
+                autoclose: true //选择日期后自动关闭
+            });
+
+            //菜单栏重置按钮
+            $("#btn-reset").click(function () {
+                $("#Id").val("");
+                $("#AppName").val("");
+                $("#StartTime").val("");
+                $("#EndTime").val("");
+                $("#tb_departments").bootstrapTable('refresh');
+            });
+        });
+
+        //菜单栏查询数据
+        function select() {
+            var query = {
+                "Id": $("#Id").val(),
+                "AppName": $("#AppName").val(),
+                "StartTime": $("#StartTime").val(),
+                "EndTime": $("#EndTime").val()
+            };
+            $("#tb_departments").bootstrapTable('refresh', { url: "/App/GetList", silent: true, query: query });
+        }
+        //function add() {
+        //    openDlg("myModal", "新增应用", "/app/modify", g_const.middleDlgSize);
+        //}
+        function update(id) {
+            openDlg("myModal", "修改应用", "/app/modify?id=" + id, g_const.middleDlgSize);
+        }
+        function del(id) {
+            $.ajax({
+                url: "/app/delete",
+                type: "post",
+                dataType: "json",
+                async: false,
+                data: { id: id },
+                success: function (response) {
+                    if (response) {
+                        $("#tb_departments").bootstrapTable('refresh');
+                    }
+                    else {
+                        window.toastr.error(response.message);
+                    }
+                },
+                error: function () {
+
+                }
+            })
+        }
+    </script>
+}

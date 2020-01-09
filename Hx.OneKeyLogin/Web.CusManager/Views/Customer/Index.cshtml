@@ -1,0 +1,131 @@
+﻿@model Domain.Common.Dtos.MemberShip.CustomerModel
+@{
+    ViewBag.Title = "商户信息";
+}
+@if (Model.Licence == null)
+{
+    <div class="pad margin no-print">
+        <div class="callout callout-info" style="margin-bottom: 0!important;">
+            <h4><i class="fa fa-info"></i>请补全企业信息</h4>
+            企业信息补全，否则无法进行业务开展
+        </div>
+    </div>
+}
+
+<!-- Main content -->
+<section class="content">
+    <!-- title row -->
+    <div class="row">
+        <div class="col-xs-12">
+            <h2 class="page-header">
+                <i class="fa fa-globe"></i> 联系人信息
+                <small class="pull-right">@Model.CreateDate</small>
+            </h2>
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- info row -->
+    <div class="row invoice-info">
+        <div class="col-sm-4 invoice-col">
+            <address>
+                <strong>业务联系人：</strong>@Model.BusinessContact
+            </address>
+            <address>
+                <strong>业务QQ：</strong>@Model.BusinessQq
+            </address>
+        </div>
+        <!-- /.col -->
+        <div class="col-sm-4 invoice-col">
+            <address>
+                <strong>业务电话：</strong>@Model.BusinessPhone
+            </address>
+        </div>
+        <!-- /.col -->
+        <div class="col-sm-4 invoice-col">
+            <address>
+                <b>业务邮箱：</b>@Model.BusinessEmail<br>
+            </address>
+        </div>
+        <!-- /.col -->
+    </div>
+    @if (Model.Licence != null)
+    {
+        <div class="row">
+            <div class="col-xs-12">
+                <h2 class="page-header">
+                    <i class="fa fa-globe"></i> 基本信息
+                    <small class="pull-right">@Model.AuthCreateDate</small>
+                </h2>
+            </div>
+        </div>
+        <div class="row invoice-info">
+            <div class="col-sm-4 invoice-col">
+                <address>
+                    <strong>公司名称：</strong>@Model.Name
+                </address>
+                <address>
+                    <strong>账户名：</strong>@Model.Id
+                </address>
+            </div>
+            <!-- /.col -->
+            <div class="col-sm-4 invoice-col">
+                <address>
+                    <strong>公司电话：</strong>@Model.Telephone
+                </address>
+                <address>
+                    <strong>手机号码：</strong>@Model.Phone
+                </address>
+            </div>
+            <!-- /.col -->
+            <div class="col-sm-4 invoice-col">
+                <address>
+                    <b>公司邮箱：</b>@Model.Email<br>
+                </address>
+                <address>
+                    <b>公司地址：</b>@Model.Address<br>
+                </address>
+            </div>
+            <!-- /.col -->
+        </div>
+    }
+    <!-- /.row -->
+    <!-- Table row -->
+    <div class="row">
+        <div class="col-xs-12">
+            <h2 class="page-header">
+                <i class="fa fa-globe"></i> 密钥信息
+                <small class="pull-right"></small>
+            </h2>
+        </div>
+        <div class="col-xs-12 table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>终端号</th>
+                        <th>密钥类型</th>
+                        <th>终端名称</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>455981221</td>
+                        <td>RSA</td>
+                        <td>数字证书</td>
+                    </tr>
+                    <tr>
+                        <td>Wes</td>
+                        <td>AES</td>
+                        <td>AES密钥</td>
+                    </tr>
+                    <tr>
+                        <td>735845642</td>
+                        <td>MD5</td>
+                        <td>MD5密钥</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- /.col -->
+    </div>
+</section>
+<!-- /.content -->
