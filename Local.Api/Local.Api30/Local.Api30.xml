@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Local.Api30</name>
+    </assembly>
+    <members>
+        <member name="M:Local.Api30.Appsettings.app(System.String[])">
+            <summary>
+            封装要操作的字符
+            </summary>
+            <param name="sections"></param>
+            <returns></returns>
+        </member>
+        <member name="F:Local.Api30.Enums.ApiVersions.ApiVersion.V1">
+            <summary>
+            V1 版本
+            </summary>
+        </member>
+        <member name="F:Local.Api30.Enums.ApiVersions.ApiVersion.V2">
+            <summary>
+            V2 版本
+            </summary>
+        </member>
+        <member name="M:Local.Api30.Helper.JwtHelper.IssueJwt(Local.Api30.Models.TokenModelJwt)">
+            <summary>
+            颁发JWT字符串
+            </summary>
+            <param name="tokenModel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Local.Api30.Helper.JwtHelper.SerializeJwt(System.String)">
+            <summary>
+            解析
+            </summary>
+            <param name="jwtStr"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Local.Api30.Models.TokenModelJwt">
+            <summary>
+            令牌
+            </summary>
+        </member>
+        <member name="P:Local.Api30.Models.TokenModelJwt.Uid">
+            <summary>
+            Id
+            </summary>
+        </member>
+        <member name="P:Local.Api30.Models.TokenModelJwt.Role">
+            <summary>
+            角色
+            </summary>
+        </member>
+        <member name="P:Local.Api30.Models.TokenModelJwt.Work">
+            <summary>
+            职能
+            </summary>
+        </member>
+        <member name="T:Local.Api30.PolicyRequirement.AdminRequirement">
+            <summary>
+            自定义操作对象
+            </summary>
+        </member>
+        <member name="T:Local.Api30.PolicyRequirement.MustRoleAdminHandler">
+            <summary>
+            自定义策略处理流程
+            </summary>
+            <remarks>AuthorizationHandler:抽象类  继承IAuthorizationHandler接口</remarks>
+        </member>
+    </members>
+</doc>
